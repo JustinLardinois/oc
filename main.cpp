@@ -64,7 +64,7 @@ void cpplines (FILE* pipe, char* filename) {
    }
 }
 
-string parse_args(int argc, char** argv) {
+char* parse_args(int argc, char** argv) {
    const char* optstring = ":ly@::D:";
    opterr = 0;
    char c;
@@ -99,7 +99,7 @@ string parse_args(int argc, char** argv) {
          set_exitstatus(EXIT_FAILURE);
          exit(get_exitstatus()); 
    }
-   return ""; // unreachable
+   return NULL; // unreachable
 }
 
 int main (int argc, char** argv) {
