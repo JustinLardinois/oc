@@ -17,6 +17,13 @@ using namespace std;
 const string CPP = "/usr/bin/cpp";
 const size_t LINESIZE = 1024;
 
+struct {
+   int yy_flex_debug = 0;
+   int yydebug = 0;
+   string debug_flags = "";
+   string cpp_arg = "";
+} options;
+
 // Chomp the last character from a buffer if it is delim.
 void chomp (char* string, char delim) {
    size_t len = strlen (string);
