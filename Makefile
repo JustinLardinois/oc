@@ -34,4 +34,5 @@ ci: ${DELIVERABLES}
 deps:
 
 submit: ${DELIVERABLES}
+    checksource $<
 	submit cmps104a-wm.s15 asg1 $<
