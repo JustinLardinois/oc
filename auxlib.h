@@ -1,3 +1,6 @@
+// Justin Lardinois jlardino@ucsc.edu
+// auxlib.h - auxiliary library for oc
+
 #ifndef __AUXLIB_H__
 #define __AUXLIB_H__
 
@@ -70,7 +73,6 @@ void syserrprintf (const char* object);
    // Sets the exit status to EXIT_FAILURE.
    //
 
-
 //
 // Support for stub messages.
 //

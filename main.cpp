@@ -1,8 +1,6 @@
-// $Id: cppstrtok.cpp,v 1.3 2014-10-07 18:09:11-07 - - $
-
-// Use cpp to scan a file and print line numbers.
-// Print out each input line read in, then strtok it for
-// tokens.
+// Justin Lardinois jlardino@ucsc.edu
+// main.cpp - main program for oc
+// based on cppstrtok-code/cppstrtok.cpp and stringset-code-cpp/main.cpp
 
 #include <string>
 using namespace std;
@@ -27,7 +25,6 @@ void chomp (char* string, char delim) {
    if (*nlpos == delim) *nlpos = '\0';
 }
 
-
 // Run cpp against the lines of the file.
 void cpplines (FILE* pipe, char* filename) {
    int linenr = 1;

@@ -1,4 +1,5 @@
-// $Id: stringset.cpp,v 1.11 2014-10-09 15:47:45-07 - - $
+// Justin Lardinois jlardino@ucsc.edu
+// stringset.cpp - implementation file for stringset.h
 
 #include <iomanip>
 #include <unordered_set>

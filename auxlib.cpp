@@ -1,3 +1,5 @@
+// Justin Lardinois jlardino@ucsc.edu
+// auxlib.cpp - implementation file for auxlib.h
 
 #include <assert.h>
 #include <errno.h>
@@ -104,7 +106,6 @@ void __stubprintf (const char* file, int line, const char* func,
    fflush (NULL);
 }     
 
-
 void set_debugflags (const char* flags) {
    debugflags = flags;
    if (strchr (debugflags, '@') != NULL) alldebugflags = true;

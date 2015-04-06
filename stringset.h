@@ -1,4 +1,5 @@
-// $Id: stringset.h,v 1.4 2014-10-09 15:42:13-07 - - $
+// Justin Lardinois jlardino@ucsc.edu
+// stringset.h - stringset ADT for oc
 
 #ifndef __STRINGSET__
 #define __STRINGSET__
