@@ -10,6 +10,7 @@ using namespace std;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <wait.h>
 
 #include "auxlib.h"
@@ -61,6 +62,37 @@ void cpplines (FILE* pipe, char* filename) {
       }
       ++linenr;
    }
+}
+
+int parse_args(int argc, char** argv) {
+   const char* optstring = ":ly@::D:";
+   opterr = 0;
+   char c;
+   while((c = getopt(argc,argv,optstring)) != -1) {
+      switch(c) {
+         case 'l':
+            options.yy_flex_debug = 1;
+            continue;
+         case 'y':
+            options.yydebug = 1;
+            continue;
+         case '@':
+            if(optarg) options.debug_flags = optarg;
+            continue;
+         case 'D':
+            options.cpp_arg = optarg;
+            continue;
+         case ':':
+            eprintf("missing argument for option %c",optopt);
+            break;
+         case '?':
+            eprintf("unrecognized option %c",optopt);
+            break;
+      }
+         set_exitstatus(EXIT_FAILURE);
+         exit(get_exitstatus()); 
+   }
+   return optind;
 }
 
 int main (int argc, char** argv) {
