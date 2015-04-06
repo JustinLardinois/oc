@@ -89,12 +89,12 @@ string parse_args(int argc, char** argv) {
             eprintf("unrecognized option %c",optopt);
             break;
          case -1:
-            if((optind == argc) || (optind + 1 != argc)) {
-               fprintf(stderr,"Usage: %s [-ly] [-D string] program.oc",
-                  get_execname());
-               break;
+            if(optind + 1 == argc) {
+               return argv[optind]; // input program name
             }
-            return argv[optind];
+            fprintf(stderr,"Usage: %s [-ly] [-D string] program.oc",
+               get_execname());
+            break;
       }
          set_exitstatus(EXIT_FAILURE);
          exit(get_exitstatus()); 
