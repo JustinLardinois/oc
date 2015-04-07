@@ -111,14 +111,15 @@ int main (int argc, char** argv) {
    string command;
    if(options.cpp_arg == "") command = CPP + " " + input_name;
    else command = CPP + " -D " + options.cpp_arg + " " + input_name;
-      FILE* pipe = popen (command.c_str(), "r");
-      if (pipe == NULL) {
-         syserrprintf (command.c_str());
-      }else {
-         cpplines (pipe);
-         int pclose_rc = pclose (pipe);
-         eprint_status (command.c_str(), pclose_rc);
-      }
+
+   FILE* pipe = popen (command.c_str(), "r");
+   if (pipe == NULL) {
+      syserrprintf (command.c_str());
+   }else {
+      cpplines (pipe);
+      int pclose_rc = pclose (pipe);
+      eprint_status (command.c_str(), pclose_rc);
+   }
    return get_exitstatus();
 }
 
