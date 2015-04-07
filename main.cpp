@@ -2,6 +2,7 @@
 // main.cpp - main program for oc
 // based on cppstrtok-code/cppstrtok.cpp and stringset-code-cpp/main.cpp
 
+#include <fstream>
 #include <string>
 using namespace std;
 
@@ -52,7 +53,6 @@ void cpplines (FILE* pipe) {
       }
       ++linenr;
    }
-   dump_stringset(cout);
 }
 
 void die(int exit_status) {
@@ -106,7 +106,7 @@ int main (int argc, char** argv) {
    char* dot = strrchr(program_name,'.');
    if(dot == NULL || strcmp(dot,".oc")) usage();
    dot = '\0'; // chop off filename extension
-   string str_file = string(program_name) + ".str";
+   const string str_file = string(program_name) + ".str";
 
    string command;
    if(options.cpp_arg == "") command = CPP + " " + input_name;
@@ -120,6 +120,12 @@ int main (int argc, char** argv) {
       int pclose_rc = pclose (pipe);
       eprint_status (command.c_str(), pclose_rc);
    }
+
+   ofstream ss_dump;
+   ss_dump.open(str_file,ofstream::out);
+   dump_stringset(ss_dump);
+   ss_dump.close();
+
    return get_exitstatus();
 }
 
