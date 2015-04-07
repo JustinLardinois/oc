@@ -111,7 +111,6 @@ int main (int argc, char** argv) {
    string command;
    if(options.cpp_arg == "") command = CPP + " " + input_name;
    else command = CPP + " -D " + options.cpp_arg + " " + input_name;
-      printf ("command=\"%s\"\n", command.c_str());
       FILE* pipe = popen (command.c_str(), "r");
       if (pipe == NULL) {
          syserrprintf (command.c_str());
