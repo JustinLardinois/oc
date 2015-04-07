@@ -61,7 +61,8 @@ void die(int exit_status) {
 }
 
 void usage() {
-   fprintf(stderr,"Usage: %s [-ly] [-D string] program.oc",get_execname());
+   fprintf(stderr,"Usage: %s [-ly] [-D string] program.oc",
+      get_execname());
    die(EXIT_FAILURE);
 }
 
