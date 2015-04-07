@@ -104,6 +104,7 @@ char* parse_args(int argc, char** argv) {
       return argv[optind]; // input program name
    }
    else usage();
+   return NULL; // unreachable; shut up g++
 }
 
 int main (int argc, char** argv) {
