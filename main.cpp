@@ -14,6 +14,7 @@ using namespace std;
 #include <wait.h>
 
 #include "auxlib.h"
+#include "stringset.h"
 
 const string CPP = "/usr/bin/cpp";
 const size_t LINESIZE = 1024;
@@ -57,11 +58,13 @@ void cpplines (FILE* pipe, const char* filename) {
          char* token = strtok_r (bufptr, " \t\n", &savepos);
          bufptr = NULL;
          if (token == NULL) break;
+         intern_stringset(token);
          printf ("token %d.%d: [%s]\n",
                  linenr, tokenct, token);
       }
       ++linenr;
    }
+   dump_stringset(cout);
 }
 
 void die(int exit_status) {
