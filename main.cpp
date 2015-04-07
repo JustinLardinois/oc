@@ -108,6 +108,12 @@ char* parse_args(int argc, char** argv) {
 
 int main (int argc, char** argv) {
    set_execname (argv[0]);
+   char* input_name = basename(parse_args(argc,argv));
+   char* dot = strrchr(input_name,'.');
+   if(dot == NULL || strcmp(dot,".oc")) usage();
+   dot = '\0'; // chop off filename extension
+   string str_file = string(input_name) + ".str";
+
    for (int argi = 1; argi < argc; ++argi) {
       char* filename = argv[argi];
       string command = CPP + " " + filename;
