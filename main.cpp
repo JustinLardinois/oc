@@ -64,6 +64,16 @@ void cpplines (FILE* pipe, char* filename) {
    }
 }
 
+void die(int exit_status) {
+   set_exitstatus(exit_status);
+   exit(get_exitstatus());
+}
+
+void usage() {
+   fprintf(stderr,"Usage: %s [-ly] [-D string] program.oc",get_execname());
+   die(EXIT_FAILURE);
+}
+
 char* parse_args(int argc, char** argv) {
    const char* optstring = ":ly@::D:";
    opterr = 0;
@@ -84,22 +94,16 @@ char* parse_args(int argc, char** argv) {
             continue;
          case ':':
             eprintf("missing argument for option %c",optopt);
-            break;
+            die(EXIT_FAILURE);
          case '?':
             eprintf("unrecognized option %c",optopt);
-            break;
-         case -1:
-            if(optind + 1 == argc) {
-               return argv[optind]; // input program name
-            }
-            fprintf(stderr,"Usage: %s [-ly] [-D string] program.oc",
-               get_execname());
-            break;
-      }
-         set_exitstatus(EXIT_FAILURE);
-         exit(get_exitstatus()); 
+            die(EXIT_FAILURE);
+      } 
    }
-   return NULL; // unreachable
+   if(optind + 1 == argc) {
+      return argv[optind]; // input program name
+   }
+   else usage();
 }
 
 int main (int argc, char** argv) {
