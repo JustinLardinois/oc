@@ -28,11 +28,11 @@ spotless: clean
 	rm oc
 
 ci: ${DELIVERABLES}
-	git add $<
+	git add $^
 	git commit
 
 deps:
 
 submit: ${DELIVERABLES}
-	checksource $<
-	submit cmps104a-wm.s15 asg1 $<
+	checksource $^
+	submit cmps104a-wm.s15 asg1 $^
