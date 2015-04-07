@@ -106,7 +106,7 @@ int main (int argc, char** argv) {
    program_name = basename(program_name);
    char* dot = strrchr(program_name,'.');
    if(dot == NULL || strcmp(dot,".oc")) usage();
-   dot = '\0'; // chop off filename extension
+   *dot = '\0'; // chop off filename extension
    const string str_file = string(program_name) + ".str";
 
    string command;
