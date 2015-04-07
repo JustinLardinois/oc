@@ -35,7 +35,7 @@ void chomp (char* string, char delim) {
 }
 
 // Run cpp against the lines of the file.
-void cpplines (FILE* pipe, const char* filename) {
+void cpplines (FILE* pipe) {
    int linenr = 1;
    for (;;) {
       char buffer[LINESIZE];
@@ -116,7 +116,7 @@ int main (int argc, char** argv) {
       if (pipe == NULL) {
          syserrprintf (command.c_str());
       }else {
-         cpplines (pipe, input_name.c_str());
+         cpplines (pipe);
          int pclose_rc = pclose (pipe);
          eprint_status (command.c_str(), pclose_rc);
       }
