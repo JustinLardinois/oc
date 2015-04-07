@@ -34,7 +34,7 @@ void chomp (char* string, char delim) {
 }
 
 // Run cpp against the lines of the file.
-void cpplines (FILE* pipe, char* filename) {
+void cpplines (FILE* pipe, const char* filename) {
    int linenr = 1;
    char inputname[LINESIZE];
    strcpy (inputname, filename);
@@ -43,12 +43,12 @@ void cpplines (FILE* pipe, char* filename) {
       char* fgets_rc = fgets (buffer, LINESIZE, pipe);
       if (fgets_rc == NULL) break;
       chomp (buffer, '\n');
-      printf ("%s:line %d: [%s]\n", filename, linenr, buffer);
+//      printf ("%s:line %d: [%s]\n", filename, linenr, buffer);
       // http://gcc.gnu.org/onlinedocs/cpp/Preprocessor-Output.html
       int sscanf_rc = sscanf (buffer, "# %d \"%[^\"]\"",
-                              &linenr, filename);
+                              &linenr, inputname);
       if (sscanf_rc == 2) {
-         printf ("DIRECTIVE: line %d file \"%s\"\n", linenr, filename);
+//         printf ("DIRECTIVE: line %d file \"%s\"\n", linenr, filename);
          continue;
       }
       char* savepos = NULL;
@@ -57,8 +57,8 @@ void cpplines (FILE* pipe, char* filename) {
          char* token = strtok_r (bufptr, " \t\n", &savepos);
          bufptr = NULL;
          if (token == NULL) break;
-         printf ("token %d.%d: [%s]\n",
-                 linenr, tokenct, token);
+//         printf ("token %d.%d: [%s]\n",
+//                 linenr, tokenct, token);
       }
       ++linenr;
    }
@@ -117,19 +117,18 @@ int main (int argc, char** argv) {
    dot = '\0'; // chop off filename extension
    string str_file = string(program_name) + ".str";
 
-   for (int argi = 1; argi < argc; ++argi) {
-      char* filename = argv[argi];
-      string command = CPP + " " + filename;
+   string command;
+   if(options.cpp_arg == "") command = CPP + " " + input_name;
+   else command = CPP + " -D " + options.cpp_arg + " " + input_name;
       printf ("command=\"%s\"\n", command.c_str());
       FILE* pipe = popen (command.c_str(), "r");
       if (pipe == NULL) {
          syserrprintf (command.c_str());
       }else {
-         cpplines (pipe, filename);
+         cpplines (pipe, input_name.c_str());
          int pclose_rc = pclose (pipe);
          eprint_status (command.c_str(), pclose_rc);
       }
-   }
    return get_exitstatus();
 }
 
