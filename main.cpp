@@ -61,7 +61,7 @@ void die(int exit_status) {
 }
 
 void usage() {
-   fprintf(stderr,"Usage: %s [-ly] [-D string] program.oc",
+   fprintf(stderr,"Usage: %s [-ly] [-D string] program.oc\n",
       get_execname());
    die(EXIT_FAILURE);
 }
@@ -85,10 +85,10 @@ char* parse_args(int argc, char** argv) {
             options.cpp_arg = optarg;
             continue;
          case ':':
-            eprintf("missing argument for option %c",optopt);
+            eprintf("missing argument for option %c\n",optopt);
             die(EXIT_FAILURE);
          case '?':
-            eprintf("unrecognized option %c",optopt);
+            eprintf("unrecognized option %c\n",optopt);
             die(EXIT_FAILURE);
       } 
    }
