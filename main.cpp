@@ -109,11 +109,13 @@ char* parse_args(int argc, char** argv) {
 
 int main (int argc, char** argv) {
    set_execname (argv[0]);
-   char* input_name = basename(parse_args(argc,argv));
-   char* dot = strrchr(input_name,'.');
+   char* program_name = parse_args(argc,argv);
+   const string input_name = program_name;
+   program_name = basename(program_name);
+   char* dot = strrchr(program_name,'.');
    if(dot == NULL || strcmp(dot,".oc")) usage();
    dot = '\0'; // chop off filename extension
-   string str_file = string(input_name) + ".str";
+   string str_file = string(program_name) + ".str";
 
    for (int argi = 1; argi < argc; ++argi) {
       char* filename = argv[argi];
