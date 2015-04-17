@@ -121,7 +121,11 @@ int main (int argc, char** argv) {
    }else {
       cpplines (pipe);
       int pclose_rc = pclose (pipe);
-      eprint_status (command.c_str(), pclose_rc);
+      if(pclose_rc) {
+         eprint_status (command.c_str(), pclose_rc);
+         set_exitstatus(EXIT_FAILURE);
+         return get_exitstatus();
+      }
    }
 
    ofstream ss_dump;
