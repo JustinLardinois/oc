@@ -21,4 +21,4 @@ CHAR_CONST      ('{CHAR}')
 STR_CONST       (\"([^\\"\n]|\\[\\'"0nt])*\")
 
 INV_IDENT       {DIGIT}(LDU}*({LETTER}|_){LDU}*
-INV_CHAR_CONST  ('(\\[^\\'"0nt]|{CHAR}[^'])['\n])
+INV_CHAR_CONST  ('((\\[^\\'"0nt]|{CHAR}[^'])+)['\n])|('')
