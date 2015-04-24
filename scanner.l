@@ -55,6 +55,28 @@ INV_STRINGCON  \"(({CHAR}(\\[^\\'"0nt]){CHAR})+)[\"\n]|(\"({CHAR}*)\n)
 {CHAR_CONST}   { return yylval_token(TOK_CHARCON); }
 {STR_CONST}    { return yylval_token(TOK_STRCON); }
 
+"[]"           { return yylval_token(TOK_ARRAY); }
+"("            { return yylval_token('('); }
+")"            { return yylval_token(')'); }
+"["            { return yylval_token('['); }
+"]"            { return yylval_token(']'); }
+"{"            { return yylval_token('{'); }
+";"            { return yylval_token(';'); }
+","            { return yylval_token('.'); }
+"="            { return yylval_token('='); }
+"=="           { return yylval_token(TOK_EQ); }
+"!="           { return yylval_token(TOK_NE); }
+"<"            { return yylval_token(TOK_LT); }
+"<="           { return yylval_token(TOK_LE); }
+">"            { return yylval_token(TOK_GT); }
+">="           { return yylval_token(TOK_GE); }
+"+"            { return yylval_token('+'); }
+"-"            { return yylval_token('-'); }
+"*"            { return yylval_token('*'); }
+"/"            { return yylval_token('/'); }
+"%"            { return yylval_token('%'); }
+"!"            { return yylval_token('!'); }
+
 .              { lexer_badchar(*yytext); }
 
 %%
