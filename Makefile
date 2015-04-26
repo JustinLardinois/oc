@@ -3,14 +3,14 @@
 
 ASG          = asg2
 CPPHEADERS   = astree.h auxlib.h stringset.h lyutils.h
-CPPSOURCES   = ${CPPHEADERS:.h=.cpp} main.cpp
-CLGEN        = yylex.cpp
-CLGENO       = ${CLGEN:.cpp=.o}
+CPPSOURCES   = ${CPPHEADERS:.h=.cpp} main.cpp 
 DELIVERABLES = ${CPPHEADERS} ${CPPSOURCES} ${LSOURCE} ${YSOURCE} \
                Makefile README
 GPP          = g++ -g -O0 -Wall -Wextra -std=gnu++11
+LCPPGEN      = yylex.cpp
+LCPPGENO     = ${LCPPGEN:.cpp=.o}
 LSOURCE      = scanner.l
-OBJECTS      = ${CPPSOURCES:.cpp=.o} ${CLGENO}
+OBJECTS      = ${CPPSOURCES:.cpp=.o} ${LCPPGENO}
 YSOURCE      = parser.y
 
 all: oc
@@ -37,12 +37,12 @@ stringset.o: stringset.cpp stringset.h
 #    piping to grep to skip flex's diagnostic ouput
 #    ANDing with true so make ignores grep's exit status
 #    supressing echoing and then echoing a pretty command
-${CLGEN}: ${LSOURCE}
-	@ flex --outfile=${CLGEN} $< |& \
+${LCPPGEN}: ${LSOURCE}
+	@ flex --outfile=${LCPPGEN} $< |& \
 	grep -v -e "^  " -e "^flex version" || true && \
-	echo "flex --outfile=${CLGEN} $<"
+	echo "flex --outfile=${LCPPGEN} $<"
 
-${CLGENO}: ${CLGEN}
+${LCPPGENO}: ${LCPPGEN}
 	${GPP} -c $<
 
 clean:
