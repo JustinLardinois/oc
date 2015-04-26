@@ -24,6 +24,9 @@ astree.o: astree.cpp astree.h auxlib.h lyutils.h stringset.h
 auxlib.o: auxlib.cpp auxlib.h
 	${GPP} -c $<
 
+lyutils.o: lyutils.cpp lyutils.h astree.h auxlib.h
+	${GPP} -c $<
+
 main.o: main.cpp auxlib.h stringset.h
 	${GPP} -c $<
 
