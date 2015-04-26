@@ -53,7 +53,7 @@ INV_STRINGCON  \"(({CHAR}(\\[^\\'"0nt]){CHAR})+)[\"\n]|(\"({CHAR}*)\n)
 {IDENT}         { return yylval_token(TOK_IDENT); }
 {INTCON}        { return yylval_token(TOK_INTCON); }
 {CHARCON}       { return yylval_token(TOK_CHARCON); }
-{STRINGCON}     { return yylval_token(TOK_STRCON); }
+{STRINGCON}     { return yylval_token(TOK_STRINGCON); }
 
 "[]"            { return yylval_token(TOK_ARRAY); }
 "("             { return yylval_token('('); }
