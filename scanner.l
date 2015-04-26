@@ -23,7 +23,7 @@ INTCON         {DIGIT}+
 CHARCON        ('{CHAR}')
 STRINGCON      (\"([^\\"\n]|\\[\\'"0nt])*\")
 
-INV_IDENT      {DIGIT}(LDU}*({LETTER}|_){LDU}*
+INV_IDENT      {DIGIT}({LDU}*({LETTER}|_){LDU}*)
 INV_CHARCON    ('((\\[^\\'"0nt]|{CHAR}[^'])+)['\n])|('')
 INV_STRINGCON  \"(({CHAR}(\\[^\\'"0nt]){CHAR})+)[\"\n]|(\"({CHAR}*)\n)
 
@@ -51,9 +51,9 @@ INV_STRINGCON  \"(({CHAR}(\\[^\\'"0nt]){CHAR})+)[\"\n]|(\"({CHAR}*)\n)
 "new"           { return yylval_token(TOK_NEW); }
 
 {IDENT}         { return yylval_token(TOK_IDENT); }
-{INT_CONST}     { return yylval_token(TOK_INTCON); }
-{CHAR_CONST}    { return yylval_token(TOK_CHARCON); }
-{STR_CONST}     { return yylval_token(TOK_STRCON); }
+{INTCON}        { return yylval_token(TOK_INTCON); }
+{CHARCON}       { return yylval_token(TOK_CHARCON); }
+{STRINGCON}     { return yylval_token(TOK_STRCON); }
 
 "[]"            { return yylval_token(TOK_ARRAY); }
 "("             { return yylval_token('('); }
