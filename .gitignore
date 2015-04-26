@@ -1,6 +1,9 @@
 *.o
 *.oc
+*.output
 *.str
 *.swp
 oc
 yylex.cpp
+yyparse.cpp
+yyparse.h
