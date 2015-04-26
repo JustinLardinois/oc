@@ -18,7 +18,8 @@ all: oc
 oc: ${OBJECTS}
 	${GPP} -o $@ $^
 
-astree.o:
+astree.o: astree.cpp astree.h auxlib.h lyutils.h stringset.h
+	${GPP} -c $<
 
 auxlib.o: auxlib.cpp auxlib.h
 	${GPP} -c $<
