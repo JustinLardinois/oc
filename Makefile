@@ -56,6 +56,7 @@ ${YCPPGENO}: ${YCPPGEN} ${YHGEN}
 
 clean:
 	rm ${OBJECTS}
+	rm *.output
 
 spotless: clean
 	rm oc
