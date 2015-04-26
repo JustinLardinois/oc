@@ -11,6 +11,9 @@ LCPPGEN      = yylex.cpp
 LCPPGENO     = ${LCPPGEN:.cpp=.o}
 LSOURCE      = scanner.l
 OBJECTS      = ${CPPSOURCES:.cpp=.o} ${LCPPGENO}
+YCPPGEN      = ${YHGEN:.h=.cpp}
+YCPPGENO     = ${YCCPGEN:.cpp=.o}
+YHGEN        = yyparse.h
 YSOURCE      = parser.y
 
 all: oc
@@ -24,7 +27,7 @@ astree.o: astree.cpp astree.h auxlib.h lyutils.h stringset.h
 auxlib.o: auxlib.cpp auxlib.h
 	${GPP} -c $<
 
-lyutils.o: lyutils.cpp lyutils.h astree.h auxlib.h
+lyutils.o: lyutils.cpp lyutils.h astree.h auxlib.h ${YHGEN}
 	${GPP} -c $<
 
 main.o: main.cpp auxlib.h stringset.h
@@ -43,6 +46,12 @@ ${LCPPGEN}: ${LSOURCE}
 	echo "flex --outfile=${LCPPGEN} $<"
 
 ${LCPPGENO}: ${LCPPGEN}
+	${GPP} -c $<
+
+${YCPPGEN} ${YHGEN}: ${YSOURCE}
+	bison --defines=${YHGEN} --output=${YCPPGEN} ${YSOURCE}
+
+${YCPPGENO}: ${YCPPGEN} ${YHGEN}
 	${GPP} -c $<
 
 clean:
