@@ -2,6 +2,8 @@
 // Justin Lardinois jlardino@ucsc.edu
 // parser.y - dummy parser for scanner project
 
+#include <cassert>
+
 #include "lyutils.h"
 #include "astree.h"
 
