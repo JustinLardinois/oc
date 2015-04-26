@@ -6,6 +6,7 @@ CPPHEADERS   = astree.h auxlib.h stringset.h lyutils.h
 CPPSOURCES   = ${CPPHEADERS:.h=.cpp} main.cpp 
 DELIVERABLES = ${CPPHEADERS} ${CPPSOURCES} ${LSOURCE} ${YSOURCE} \
                Makefile README
+GEN          = ${LCPPGEN} ${YCPPGEN} ${YHGEN}
 GPP          = g++ -g -O0 -Wall -Wextra -std=gnu++11
 LCPPGEN      = yylex.cpp
 LCPPGENO     = ${LCPPGEN:.cpp=.o}
@@ -55,8 +56,7 @@ ${YCPPGENO}: ${YCPPGEN} ${YHGEN}
 	${GPP} -c $<
 
 clean:
-	rm ${OBJECTS}
-	rm *.output
+	rm ${OBJECTS} ${GEN} *.output
 
 spotless: clean
 	rm oc
