@@ -10,7 +10,7 @@ GPP          = g++ -g -O0 -Wall -Wextra -std=gnu++11
 LCPPGEN      = yylex.cpp
 LCPPGENO     = ${LCPPGEN:.cpp=.o}
 LSOURCE      = scanner.l
-OBJECTS      = ${CPPSOURCES:.cpp=.o} ${LCPPGENO}
+OBJECTS      = ${CPPSOURCES:.cpp=.o} ${LCPPGENO} ${YCPPGENO}
 YCPPGEN      = ${YHGEN:.h=.cpp}
 YCPPGENO     = ${YCCPGEN:.cpp=.o}
 YHGEN        = yyparse.h
@@ -21,7 +21,7 @@ all: oc
 oc: ${OBJECTS}
 	${GPP} -o $@ $^
 
-astree.o: astree.cpp astree.h auxlib.h lyutils.h stringset.h
+astree.o: astree.cpp astree.h auxlib.h lyutils.h stringset.h ${YHGEN}
 	${GPP} -c $<
 
 auxlib.o: auxlib.cpp auxlib.h
