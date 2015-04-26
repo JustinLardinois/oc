@@ -11,8 +11,8 @@ LCPPGEN      = yylex.cpp
 LCPPGENO     = ${LCPPGEN:.cpp=.o}
 LSOURCE      = scanner.l
 OBJECTS      = ${CPPSOURCES:.cpp=.o} ${LCPPGENO} ${YCPPGENO}
-YCPPGEN      = ${YHGEN:.h=.cpp}
-YCPPGENO     = ${YCCPGEN:.cpp=.o}
+YCPPGEN      = yyparse.cpp
+YCPPGENO     = yyparse.o
 YHGEN        = yyparse.h
 YSOURCE      = parser.y
 
