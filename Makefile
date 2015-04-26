@@ -38,6 +38,9 @@ ${CLGEN}: ${LSOURCE}
 	grep -v -e "^  " -e "^flex version" || true && \
 	echo "flex --outfile=${CLGEN} $<"
 
+${CLGENO}: ${CLGEN}
+	${GPP} -c $<
+
 clean:
 	rm ${OBJECTS}
 
