@@ -70,14 +70,16 @@ void usage() {
 char* parse_args(int argc, char** argv) {
    const char* optstring = ":ly@::D:";
    opterr = 0;
+   yy_flex_debug = 0;
+   yydebug = 0;
    char c;
    while((c = getopt(argc,argv,optstring)) != -1) {
       switch(c) {
          case 'l':
-            options.yy_flex_debug = 1;
+            yy_flex_debug = 1;
             continue;
          case 'y':
-            options.yydebug = 1;
+            yydebug = 1;
             continue;
          case '@':
             if(optarg) options.debug_flags = optarg;
