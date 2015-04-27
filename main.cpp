@@ -120,7 +120,7 @@ int main (int argc, char** argv) {
    if (yyin == NULL) {
       syserrprintf (command.c_str());
    }else {
-      cpplines (yyin);
+      while(yylex() != YYEOF);
       int pclose_rc = pclose(yyin);
       if(pclose_rc) {
          eprint_status (command.c_str(), pclose_rc);
