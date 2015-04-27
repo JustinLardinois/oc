@@ -3,6 +3,8 @@
 // scanner.l - lex scanner for oc language
 
 #include "lyutils.h"
+
+#define YY_USER_ACTION { lexer_useraction(); }
 %}
 
 %option 8bit
