@@ -20,6 +20,8 @@ int scan_offset = 0;
 bool scan_echo = false;
 vector<string> included_filenames;
 
+FILE* tok_file;
+
 const string* lexer_filename (int filenr) {
    return &included_filenames.at(filenr);
 }
@@ -72,7 +74,7 @@ int yylval_token (int symbol) {
    int filenumber = included_filenames.size() - 1;
    yylval = new astree (symbol, filenumber,
                         scan_linenr, offset, yytext);
-   fprintf(stdout,"%4d%4d.%03d %4d %-16s (%s)\n",
+   fprintf(tok_file,"%4d%4d.%03d %4d %-16s (%s)\n",
       filenumber,scan_linenr,offset,symbol,get_yytname(symbol),
       yytext);
    return symbol;
@@ -94,7 +96,7 @@ void lexer_include (void) {
       errprintf ("%: %d: [%s]: invalid directive, ignored\n",
                  scan_rc, yytext);
    }else {
-      printf ("# %d \"%s\"\n", linenr, filename);
+      fprintf(tok_file,"# %d \"%s\"\n", linenr, filename);
       lexer_newfilename (filename);
       scan_linenr = linenr - 1;
       DEBUGF ('m', "filename=%s, scan_linenr=%d\n",
