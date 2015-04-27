@@ -15,6 +15,7 @@ using namespace std;
 #include <wait.h>
 
 #include "auxlib.h"
+#include "lyutils.h"
 #include "stringset.h"
 
 const string CPP = "/usr/bin/cpp";
@@ -115,12 +116,12 @@ int main (int argc, char** argv) {
    if(options.cpp_arg == "") command = CPP + " " + input_name;
    else command = CPP + " -D " + options.cpp_arg + " " + input_name;
 
-   FILE* pipe = popen (command.c_str(), "r");
-   if (pipe == NULL) {
+   yyin = popen (command.c_str(), "r");
+   if (yyin == NULL) {
       syserrprintf (command.c_str());
    }else {
-      cpplines (pipe);
-      int pclose_rc = pclose (pipe);
+      cpplines (yyin);
+      int pclose_rc = pclose(yyin);
       if(pclose_rc) {
          eprint_status (command.c_str(), pclose_rc);
          set_exitstatus(EXIT_FAILURE);
