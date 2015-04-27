@@ -31,7 +31,7 @@ auxlib.o: auxlib.cpp auxlib.h
 lyutils.o: lyutils.cpp lyutils.h astree.h auxlib.h ${YHGEN}
 	${GPP} -c $<
 
-main.o: main.cpp auxlib.h stringset.h
+main.o: main.cpp auxlib.h lyutils.h stringset.h
 	${GPP} -c $<
 
 stringset.o: stringset.cpp stringset.h
