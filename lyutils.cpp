@@ -69,8 +69,12 @@ void lexer_badtoken (char* lexeme) {
 
 int yylval_token (int symbol) {
    int offset = scan_offset - yyleng;
-   yylval = new astree (symbol, included_filenames.size() - 1,
+   int filenumber = included_filenames.size() - 1;
+   yylval = new astree (symbol, filenumber,
                         scan_linenr, offset, yytext);
+   fprintf(stdout,"%4d%4d.%03d %4d %-16s (%s)\n",
+      filenumber,scan_linenr,offset,symbol,get_yytname(symbol),
+      yytext);
    return symbol;
 }
 
@@ -90,7 +94,7 @@ void lexer_include (void) {
       errprintf ("%: %d: [%s]: invalid directive, ignored\n",
                  scan_rc, yytext);
    }else {
-      printf (";# %d \"%s\"\n", linenr, filename);
+      printf ("# %d \"%s\"\n", linenr, filename);
       lexer_newfilename (filename);
       scan_linenr = linenr - 1;
       DEBUGF ('m', "filename=%s, scan_linenr=%d\n",
