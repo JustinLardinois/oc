@@ -22,8 +22,6 @@ const string CPP = "/usr/bin/cpp";
 const size_t LINESIZE = 1024;
 
 struct {
-   int yy_flex_debug = 0;
-   int yydebug = 0;
    string debug_flags = "";
    string cpp_arg = "";
 } options;
