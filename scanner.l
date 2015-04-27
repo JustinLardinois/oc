@@ -17,6 +17,7 @@ LETTER         [A-Za-z]
 DIGIT          [0-9]
 LDU            {LETTER}|{DIGIT}|_
 CHAR           ([^\\'\n]|\\[\\'"0nt])
+SCHAR          ([^\\'"\n]|\\[\\'"0nt])
 
 IDENT          ({LETTER}|_)({LDU})*
 INTCON         {DIGIT}+ 
@@ -25,7 +26,7 @@ STRINGCON      (\"([^\\"\n]|\\[\\'"0nt])*\")
 
 INV_IDENT      {DIGIT}({LDU}*({LETTER}|_){LDU}*)
 INV_CHARCON    ('((\\[^\\'"0nt]|{CHAR}[^'])+)['\n])|('')
-INV_STRINGCON  \"(({CHAR}(\\[^\\'"0nt]){CHAR})+)[\"\n]|(\"({CHAR}*)\n)
+INV_STRINGCON  (\"{SCHAR}*\n)|((\"({SCHAR}*\\[^\\"0nt]{SCHAR}*)+)[\"\n])
 
 %%
 
