@@ -34,26 +34,6 @@ void chomp (char* string, char delim) {
    if (*nlpos == delim) *nlpos = '\0';
 }
 
-// Run cpp against the lines of the file.
-void cpplines (FILE* pipe) {
-   int linenr = 1;
-   for (;;) {
-      char buffer[LINESIZE];
-      char* fgets_rc = fgets (buffer, LINESIZE, pipe);
-      if (fgets_rc == NULL) break;
-      chomp (buffer, '\n');
-      char* savepos = NULL;
-      char* bufptr = buffer;
-      for (int tokenct = 1;; ++tokenct) {
-         char* token = strtok_r (bufptr, " \t\n", &savepos);
-         bufptr = NULL;
-         if (token == NULL) break;
-         intern_stringset(token);
-      }
-      ++linenr;
-   }
-}
-
 void die(int exit_status) {
    set_exitstatus(exit_status);
    exit(get_exitstatus());
