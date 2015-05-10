@@ -64,8 +64,10 @@ INV_STRINGCON  (\"{SCHAR}*\n)|((\"({SCHAR}*\\[^\\"0nt]{SCHAR}*)+)[\"\n])
 "["             { return yylval_token('['); }
 "]"             { return yylval_token(']'); }
 "{"             { return yylval_token('{'); }
+"}"             { return yylval_token('}'); }
 ";"             { return yylval_token(';'); }
-","             { return yylval_token('.'); }
+","             { return yylval_token(','); }
+"."             { return yylval_token('.'); }
 "="             { return yylval_token('='); }
 "=="            { return yylval_token(TOK_EQ); }
 "!="            { return yylval_token(TOK_NE); }
