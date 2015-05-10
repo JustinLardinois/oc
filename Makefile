@@ -1,7 +1,7 @@
 # Justin Lardinois jlardino@ucsc.edu
 # Makefile for oc
 
-ASG          = asg2
+ASG          = asg3
 CPPHEADERS   = astree.h auxlib.h stringset.h lyutils.h
 CPPSOURCES   = ${CPPHEADERS:.h=.cpp} main.cpp 
 DELIVERABLES = ${CPPHEADERS} ${CPPSOURCES} ${LSOURCE} ${YSOURCE} \
