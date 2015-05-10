@@ -39,7 +39,7 @@ stringset.o: stringset.cpp stringset.h
 
 # three levels of hacks:
 #    piping to grep to skip flex's diagnostic ouput
-#    ANDing with true so make ignores grep's exit status
+#    ORing with true so make ignores grep's exit status
 #    supressing echoing and then echoing a pretty command
 ${LCPPGEN}: ${LSOURCE}
 	@ flex --outfile=${LCPPGEN} $< |& \
