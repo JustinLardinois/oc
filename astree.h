@@ -24,6 +24,8 @@ struct astree {
 // Append one child to the vector of children.
 astree* adopt1 (astree* root, astree* child);
 
+astree* adopt1sym (astree* root, astree* child, int symbol);
+
 // Append two children to the vector of children.
 astree* adopt2 (astree* root, astree* left, astree* right);
 

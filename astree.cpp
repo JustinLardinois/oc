@@ -35,6 +35,12 @@ astree* adopt2 (astree* root, astree* left, astree* right) {
    return root;
 }
 
+astree* adopt1sym (astree* root, astree* child, int symbol) {
+   root = adopt1 (root, child);
+   root->symbol = symbol;
+   return root;
+}
+
 
 static void dump_node (FILE* outfile, astree* node) {
    fprintf (outfile, "%p->{%s(%d) %ld:%ld.%03ld \"%s\" [",
