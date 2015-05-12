@@ -48,20 +48,25 @@ program      : program structdef   { $$ = adopt1($1,$2); }
              | /* empty */         { $$ = new_parseroot(); }
              ;
 structdef    : TOK_STRUCT TOK_IDENT '{' '}'
-               { free_ast2($3,$4);
-                 $2->symbol = TOK_TYPEID;
-                 $$ = adopt1($1,$2); }
+                                   { free_ast2($3,$4);
+                                     $2->symbol = TOK_TYPEID;
+                                     $$ = adopt1($1,$2); }
              | TOK_STRUCT TOK_IDENT '{' structfields '}'
-               { free_ast2($3,$5);
-                 $2->symbol = TOK_TYPEID;
-                 $$ = adopt2($1,$2,$4); }
+                                   { free_ast2($3,$5);
+                                     $2->symbol = TOK_TYPEID;
+                                     $$ = adopt2($1,$2,$4); }
              ;
 structfields : fielddecl ';'      { free_ast($2);
                                     $$ = $1; }
-             | structfields fielddecl ';' { free_ast($3);
-                                            $$ = $2; }
+             | structfields fielddecl ';'
+                                  { free_ast($3);
+                                    $$ = $2; }
              ;
-fielddecl    : basetype TOK_FIELD | basetype TOK_ARRAY TOK_FIELD
+fielddecl    : basetype TOK_IDENT { $2->symbol = TOK_FIELD;
+                                    $$ = adopt1($1,$2); }
+             | basetype TOK_ARRAY TOK_IDENT
+                                  { $3->symbol = TOK_FIELD;
+                                    $$ = adopt2($1,$2,$3); }
              ;
 basetype     : TOK_VOID | TOK_BOOL | TOK_CHAR | TOK_INT
              | TOK_STRING | TOK_TYPEID
