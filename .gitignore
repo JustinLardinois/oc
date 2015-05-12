@@ -1,3 +1,4 @@
+*.ast
 *.o
 *.oc
 *.output
