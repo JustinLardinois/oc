@@ -38,18 +38,23 @@
 
 %%
 
-start        : program           { yyparse_astree = $1; }
+start        : program             { yyparse_astree = $1; }
              ;
-program      : program structdef { $$ = adopt1($1,$2); }
-             | program function  { $$ = adopt1($1,$2); }
-             | program statement { $$ = adopt1($1,$2); }
-             | program error '}' { $$ = $1; }
-             | program error ';' { $$ = $1; }
-             | /* empty */       { $$ = new_parseroot(); }
+program      : program structdef   { $$ = adopt1($1,$2); }
+             | program function    { $$ = adopt1($1,$2); }
+             | program statement   { $$ = adopt1($1,$2); }
+             | program error '}'   { $$ = $1; }
+             | program error ';'   { $$ = $1; }
+             | /* empty */         { $$ = new_parseroot(); }
              ;
 structdef    : TOK_STRUCT TOK_TYPEID '{' structfields '}'
+               { free_ast2($3,$5);
+                 $$ = adopt1sym($1,$2,TOK_TYPEID);
+                 $$ = adopt1($$,$4); }
              ;
-structfields : /* empty */ | structfields fielddecl ';'
+structfields : /* empty */
+             | structfields fielddecl ';' { free_ast($3);
+                                            $$ = $2; }
              ;
 fielddecl    : basetype TOK_FIELD | basetype TOK_ARRAY TOK_FIELD
              ;
