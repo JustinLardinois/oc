@@ -34,31 +34,38 @@
 %left  PREC_INDEX PREC_MEMBER PREC_CALL
 %nonassoc PREC_PAREN
 
-%start program
+%start start
 
 %%
 
-program      : /* empty */ | structdef | function | statement
-             | program program
+start        : program           { yyparse_astree = $1; }
+             ;
+program      : program structdef { $$ = adopt1($1,$2); }
+             | program function  { $$ = adopt1($1,$2); }
+             | program statement { $$ = adopt1($1,$2); }
+             | program error '}' { $$ = $1; }
+             | program error ';' { $$ = $1; }
+             | /* empty */       { $$ = new_parseroot(); }
              ;
 structdef    : TOK_STRUCT TOK_TYPEID '{' structfields '}'
              ;
-structfields : /* empty */ | fielddecl ';' | structfields structfields
+structfields : /* empty */ | structfields fielddecl ';'
              ;
 fielddecl    : basetype TOK_FIELD | basetype TOK_ARRAY TOK_FIELD
              ;
 basetype     : TOK_VOID | TOK_BOOL | TOK_CHAR | TOK_INT
              | TOK_STRING | TOK_TYPEID
              ;
-function     : identdecl '(' functionargs ')' block %prec PREC_FUNC
+function     : identdecl '(' ')' block %prec PREC_FUNC
+             | identdecl '(' functionargs ')' block %prec PREC_FUNC
              ;
-functionargs : /* empty */ | identdecl | functionargs ',' identdecl
+functionargs : identdecl | functionargs ',' identdecl
              ;
 identdecl    : basetype TOK_INITDECL | basetype TOK_ARRAY TOK_INITDECL
              ;
 block        : '{' blockstmts '}' | ';'
              ;
-blockstmts   : /* empty */ | statement | blockstmts blockstmts
+blockstmts   : /* empty */ | blockstmts statement
              ;
 statement    : block | vardecl | while | ifelse | return | expr ';'
              ;
@@ -66,7 +73,7 @@ vardecl      : identdecl '=' expr ';'
              ;
 while        : TOK_WHILE '(' expr ')' statement
              ;
-ifelse       : if | if TOK_ELSE statement
+ifelse       : if %prec TOK_ELSE | if TOK_ELSE statement
              ;
 if           : TOK_IF '(' expr ')' statement
              ;
@@ -85,9 +92,10 @@ allocator    : TOK_NEW TOK_TYPEID '(' ')'
              | TOK_NEW TOK_STRING '(' expr ')'
              | TOK_NEW basetype '[' expr ']'
              ;
-call         : TOK_IDENT '(' callargs ')' %prec PREC_CALL
+call         : TOK_IDENT '(' ')' %prec PREC_CALL
+             | TOK_IDENT '(' callargs ')' %prec PREC_CALL
              ;
-callargs     : /* empty */ | expr | callargs ',' expr
+callargs     : expr | callargs ',' expr
              ;
 variable     : TOK_IDENT | expr '[' expr ']' %prec PREC_INDEX
              | expr '.' TOK_FIELD %prec PREC_MEMBER
