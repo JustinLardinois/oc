@@ -47,12 +47,17 @@ program      : program structdef   { $$ = adopt1($1,$2); }
              | program error ';'   { $$ = $1; }
              | /* empty */         { $$ = new_parseroot(); }
              ;
-structdef    : TOK_STRUCT TOK_TYPEID '{' structfields '}'
+structdef    : TOK_STRUCT TOK_IDENT '{' '}'
+               { free_ast2($3,$4);
+                 $2->symbol = TOK_TYPEID;
+                 $$ = adopt1($1,$2); }
+             | TOK_STRUCT TOK_IDENT '{' structfields '}'
                { free_ast2($3,$5);
-                 $$ = adopt1sym($1,$2,TOK_TYPEID);
-                 $$ = adopt1($$,$4); }
+                 $2->symbol = TOK_TYPEID;
+                 $$ = adopt2($1,$2,$4); }
              ;
-structfields : /* empty */
+structfields : fielddecl ';'      { free_ast($2);
+                                    $$ = $1; }
              | structfields fielddecl ';' { free_ast($3);
                                             $$ = $2; }
              ;
