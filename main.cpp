@@ -102,7 +102,7 @@ int main (int argc, char** argv) {
    }else {
       tok_file = fopen((string(program_name) + ".tok").c_str(),
          "w");
-      while(yylex() != YYEOF);
+      yyparse();
       fclose(tok_file);
       int pclose_rc = pclose(yyin);
       if(pclose_rc) {
