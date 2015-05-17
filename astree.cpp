@@ -11,6 +11,7 @@
 #include "astree.h"
 #include "stringset.h"
 #include "lyutils.h"
+#include "yyparse.h"
 
 astree::astree (int symbol, int filenr, int linenr,
                 int offset, const char* clexinfo):
@@ -38,6 +39,23 @@ astree* adopt2 (astree* root, astree* left, astree* right) {
 astree* adopt1sym (astree* root, astree* child, int symbol) {
    root = adopt1 (root, child);
    root->symbol = symbol;
+   return root;
+}
+
+astree* adoptf(astree* identdecl , astree* params , astree* block) {
+   const char* clexinfo = "<FUNCTION>";
+   astree* root;
+   if(block->lexinfo->c_str()[0] == ';') {
+      free_ast(block);
+      root =  new astree(TOK_FUNCTION,identdecl->filenr,
+         identdecl->linenr,identdecl->offset,clexinfo);
+      adopt2(root,identdecl,params);
+   }else {
+      root = new astree(TOK_PROTOTYPE,identdecl->filenr,
+         identdecl->linenr,identdecl->offset,clexinfo);
+      adopt2(root,identdecl,params);
+      adopt1(root,block);
+   }
    return root;
 }
 

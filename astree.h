@@ -29,6 +29,9 @@ astree* adopt1sym (astree* root, astree* child, int symbol);
 // Append two children to the vector of children.
 astree* adopt2 (astree* root, astree* left, astree* right);
 
+// Create function tree
+astree* adoptf(astree* identdecl , astree* params , astree* block);
+
 // Dump an astree to a FILE.
 void dump_astree (FILE* outfile, astree* root);
 
