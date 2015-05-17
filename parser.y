@@ -92,9 +92,14 @@ identdecl    : basetype TOK_IDENT  { $2->symbol = TOK_DECLID;
                                    { $3->symbol = TOK_DECLID;
                                      $$ = adopt2($1,$2,$3); }
              ;
-block        : '{' blockstmts '}' | ';'
+block        : blockstmts '}'      { free_ast($2);
+                                     $$ = $1; }
+             | ';'                 { $$ = $1; }
              ;
-blockstmts   : /* empty */ | blockstmts statement
+blockstmts   : '{'                 { $1->symbol = TOK_BLOCK;
+                                     $$ = $1; }
+             | blockstmts statement
+                                   { $$ = adopt1($1,$2); }
              ;
 statement    : block | vardecl | while | ifelse | return | expr ';'
              ;
