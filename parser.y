@@ -65,7 +65,7 @@ fielddecl    : basetype TOK_IDENT  { $2->symbol = TOK_FIELD;
                                      $$ = adopt1($1,$2); }
              | basetype TOK_ARRAY TOK_IDENT
                                    { $3->symbol = TOK_FIELD;
-                                     $$ = adopt2($1,$2,$3); }
+                                     $$ = adopt2($2,$1,$3); }
              ;
 basetype     : TOK_VOID            { $$ = $1; }
              | TOK_BOOL            { $$ = $1; }
@@ -91,7 +91,7 @@ identdecl    : basetype TOK_IDENT  { $2->symbol = TOK_DECLID;
                                      $$ = adopt1($1,$2); }
              | basetype TOK_ARRAY TOK_IDENT
                                    { $3->symbol = TOK_DECLID;
-                                     $$ = adopt2($1,$2,$3); }
+                                     $$ = adopt2($2,$1,$3); }
              ;
 block        : blockstmts '}'      { free_ast($2);
                                      $$ = $1; }
