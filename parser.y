@@ -26,6 +26,7 @@
 %token TOK_ORD TOK_CHR TOK_ROOT
 
 %token TOK_FUNCTION TOK_PROTOTYPE TOK_PARAMLIST TOK_DECLID
+%token TOK_VARDECL
 
 %right TOK_IF TOK_ELSE
 %right '='
@@ -110,6 +111,9 @@ statement    : block               { $$ = $1; }
                                      $$ = $1; }
              ;
 vardecl      : identdecl '=' expr ';'
+                                   { free_ast($4);
+                                     $2->symbol = TOK_VARDECL;
+                                     adopt2($2,$1,$3); }
              ;
 while        : TOK_WHILE '(' expr ')' statement
              ;
