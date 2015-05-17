@@ -178,10 +178,16 @@ allocator    : TOK_NEW TOK_IDENT '(' ')'
                                      $1->symbol = TOK_NEWARRAY;
                                      $$ = adopt2($1,$2,$4); }
              ;
-call         : TOK_IDENT '(' ')' %prec PREC_CALL
-             | TOK_IDENT '(' callargs ')' %prec PREC_CALL
+call         : callargs ')' %prec PREC_CALL
+                                   { free_ast($2);
+                                     $$ = $1; }
              ;
-callargs     : expr | callargs ',' expr
+callargs     : TOK_IDENT '('       { $2->symbol = TOK_CALL;
+                                     $$ = adopt1($2,$1); }
+             | TOK_IDENT '(' expr  { $2->symbol = TOK_CALL;
+                                     $$ = adopt2($2,$1,$3); }
+             | callargs ',' expr   { free_ast($2);
+                                     $$ = adopt1($1,$3); }
              ;
 variable     : TOK_IDENT | expr '[' expr ']' %prec PREC_INDEX
              | expr '.' TOK_FIELD %prec PREC_MEMBER
