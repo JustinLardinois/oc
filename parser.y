@@ -26,7 +26,7 @@
 %token TOK_ORD TOK_CHR TOK_ROOT
 
 %token TOK_FUNCTION TOK_PROTOTYPE TOK_PARAMLIST TOK_DECLID
-%token TOK_VARDECL
+%token TOK_VARDECL TOK_RETURNVOID
 
 %right TOK_IF TOK_ELSE
 %right '='
@@ -129,7 +129,11 @@ if           : TOK_IF '(' expr ')' statement
                                    { free_ast2($2,$4);
                                      $$ = adopt2($1,$3,$5); }
              ;
-return       : TOK_RETURN ';' | TOK_RETURN expr ';'
+return       : TOK_RETURN ';'      { free_ast($2);
+                                     $1->symbol = TOK_RETURNVOID;
+                                     $$ = $1; }
+             | TOK_RETURN expr ';' { free_ast($3);
+                                     $$ = adopt1($1,$2); }
              ;
 expr         : expr '=' expr | expr TOK_EQ expr | expr TOK_NE expr
              | expr TOK_LT expr | expr TOK_LE expr | expr TOK_GT expr
