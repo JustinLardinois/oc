@@ -101,7 +101,13 @@ blockstmts   : '{'                 { $1->symbol = TOK_BLOCK;
              | blockstmts statement
                                    { $$ = adopt1($1,$2); }
              ;
-statement    : block | vardecl | while | ifelse | return | expr ';'
+statement    : block               { $$ = $1; }
+             | vardecl             { $$ = $1; }
+             | while               { $$ = $1; }
+             | ifelse              { $$ = $1; }
+             | return              { $$ = $1; }
+             | expr ';'            { free_ast($2);
+                                     $$ = $1; }
              ;
 vardecl      : identdecl '=' expr ';'
              ;
