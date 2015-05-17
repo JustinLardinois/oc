@@ -64,8 +64,13 @@ fielddecl    : basetype TOK_IDENT  { $2->symbol = TOK_FIELD;
                                    { $3->symbol = TOK_FIELD;
                                      $$ = adopt2($1,$2,$3); }
              ;
-basetype     : TOK_VOID | TOK_BOOL | TOK_CHAR | TOK_INT
-             | TOK_STRING | TOK_TYPEID
+basetype     : TOK_VOID            { $$ = $1; }
+             | TOK_BOOL            { $$ = $1; }
+             | TOK_CHAR            { $$ = $1; }
+             | TOK_INT             { $$ = $1; }
+             | TOK_STRING          { $$ = $1; }
+             | TOK_IDENT           { $1->symbol = TOK_TYPEID;
+                                     $$ = $1; }
              ;
 function     : identdecl '(' ')' block %prec PREC_FUNC
              | identdecl '(' functionargs ')' block %prec PREC_FUNC
