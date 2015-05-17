@@ -58,11 +58,11 @@ structfields : TOK_STRUCT TOK_IDENT '{'
                                    { free_ast($3);
                                      $$ = adopt1($1,$2); }
              ;
-fielddecl    : basetype TOK_IDENT { $2->symbol = TOK_FIELD;
-                                    $$ = adopt1($1,$2); }
+fielddecl    : basetype TOK_IDENT  { $2->symbol = TOK_FIELD;
+                                     $$ = adopt1($1,$2); }
              | basetype TOK_ARRAY TOK_IDENT
-                                  { $3->symbol = TOK_FIELD;
-                                    $$ = adopt2($1,$2,$3); }
+                                   { $3->symbol = TOK_FIELD;
+                                     $$ = adopt2($1,$2,$3); }
              ;
 basetype     : TOK_VOID | TOK_BOOL | TOK_CHAR | TOK_INT
              | TOK_STRING | TOK_TYPEID
