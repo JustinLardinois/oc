@@ -119,9 +119,15 @@ while        : TOK_WHILE '(' expr ')' statement
                                    { free_ast2($2,$4);
                                      $$ = adopt2($1,$3,$5); }
              ;
-ifelse       : if %prec TOK_ELSE | if TOK_ELSE statement
+ifelse       : if                  { $$ = $1; }
+             | if TOK_ELSE statement
+                                   { free_ast($2);
+                                     $1->symbol = TOK_IFELSE;
+                                     $$ = adopt1($1,$3); }
              ;
 if           : TOK_IF '(' expr ')' statement
+                                   { free_ast2($2,$4);
+                                     $$ = adopt2($1,$3,$5); }
              ;
 return       : TOK_RETURN ';' | TOK_RETURN expr ';'
              ;
