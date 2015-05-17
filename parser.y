@@ -198,8 +198,12 @@ variable     : TOK_IDENT           { $$ = $1; }
                                    { $3->symbol = TOK_FIELD;
                                      $$ = adopt2($2,$1,$3); }
              ;
-constant     : TOK_INTCON | TOK_CHARCON | TOK_STRINGCON | TOK_FALSE
-             | TOK_TRUE | TOK_NULL
+constant     : TOK_INTCON          { $$ = $1; }
+             | TOK_CHARCON         { $$ = $1; }
+             | TOK_STRINGCON       { $$ = $1; }
+             | TOK_FALSE           { $$ = $1; }
+             | TOK_TRUE            { $$ = $1; }
+             | TOK_NULL            { $$ = $1; }
              ;
 /*token   : '(' | ')' | '[' | ']' | '{' | '}' | ';' | ',' | '.'
         | '=' | '+' | '-' | '*' | '/' | '%' | '!'
