@@ -25,7 +25,7 @@
 %token TOK_POS TOK_NEG TOK_NEWARRAY TOK_TYPEID TOK_FIELD
 %token TOK_ORD TOK_CHR TOK_ROOT
 
-%token TOK_FUNCTION TOK_PROTOTYPE TOK_PARAMLIST
+%token TOK_FUNCTION TOK_PROTOTYPE TOK_PARAMLIST TOK_DECLID
 
 %right TOK_IF TOK_ELSE
 %right '='
@@ -86,7 +86,11 @@ functionargs : '('                 { $1->symbol = TOK_PARAMLIST;
                                    { free_ast($2);
                                      $$ = adopt1($1,$2); }
              ;
-identdecl    : basetype TOK_INITDECL | basetype TOK_ARRAY TOK_INITDECL
+identdecl    : basetype TOK_IDENT  { $2->symbol = TOK_DECLID;
+                                     $$ = adopt1($1,$2); }
+             | basetype TOK_ARRAY TOK_IDENT
+                                   { $3->symbol = TOK_DECLID;
+                                     $$ = adopt2($1,$2,$3); }
              ;
 block        : '{' blockstmts '}' | ';'
              ;
