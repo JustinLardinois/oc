@@ -26,7 +26,7 @@
 %token TOK_ORD TOK_CHR TOK_ROOT
 
 %token TOK_FUNCTION TOK_PROTOTYPE TOK_PARAMLIST TOK_DECLID
-%token TOK_VARDECL TOK_RETURNVOID TOK_NEWSTRING
+%token TOK_VARDECL TOK_RETURNVOID TOK_NEWSTRING TOK_INDEX
 
 %right TOK_IF TOK_ELSE
 %right '='
@@ -189,8 +189,14 @@ callargs     : TOK_IDENT '('       { $2->symbol = TOK_CALL;
              | callargs ',' expr   { free_ast($2);
                                      $$ = adopt1($1,$3); }
              ;
-variable     : TOK_IDENT | expr '[' expr ']' %prec PREC_INDEX
-             | expr '.' TOK_FIELD %prec PREC_MEMBER
+variable     : TOK_IDENT           { $$ = $1; }
+             | expr '[' expr ']' %prec PREC_INDEX
+                                   { free_ast($4);
+                                     $2->symbol = TOK_INDEX;
+                                     $$ = adopt2($2,$1,$3); }
+             | expr '.' TOK_IDENT %prec PREC_MEMBER
+                                   { $3->symbol = TOK_FIELD;
+                                     $$ = adopt2($2,$1,$3); }
              ;
 constant     : TOK_INTCON | TOK_CHARCON | TOK_STRINGCON | TOK_FALSE
              | TOK_TRUE | TOK_NULL
