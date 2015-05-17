@@ -116,6 +116,8 @@ vardecl      : identdecl '=' expr ';'
                                      adopt2($2,$1,$3); }
              ;
 while        : TOK_WHILE '(' expr ')' statement
+                                   { free_ast2($2,$4);
+                                     $$ = adopt2($1,$3,$5); }
              ;
 ifelse       : if %prec TOK_ELSE | if TOK_ELSE statement
              ;
