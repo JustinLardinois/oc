@@ -29,6 +29,7 @@
 %token TOK_VARDECL TOK_RETURNVOID TOK_NEWSTRING TOK_INDEX
 
 %right TOK_IF TOK_ELSE
+%right PREC_ONLYIF
 %right '='
 %left  TOK_EQ TOK_NE TOK_LT TOK_LE TOK_GT TOK_GE
 %left  '+' '-'
@@ -119,7 +120,8 @@ while        : TOK_WHILE '(' expr ')' statement
                                    { free_ast2($2,$4);
                                      $$ = adopt2($1,$3,$5); }
              ;
-ifelse       : if                  { $$ = $1; }
+ifelse       : if %prec PREC_ONLYIF
+                                   { $$ = $1; }
              | if TOK_ELSE statement
                                    { free_ast($2);
                                      $1->symbol = TOK_IFELSE;
