@@ -81,8 +81,10 @@ static void dump_node (FILE* outfile, astree* node) {
 static void dump_astree_rec (FILE* outfile, astree* root,
                              int depth) {
    if (root == NULL) return;
-   fprintf (outfile, "%*s%s ", depth * 3, "",
-            root->lexinfo->c_str());
+/*   fprintf (outfile, "%*s%s ", depth * 3, "",
+            root->lexinfo->c_str());*/
+   const char* indent = "|  ";
+   for(int i = 0; i < depth; i++) fprintf(outfile,indent);
    dump_node (outfile, root);
    fprintf (outfile, "\n");
    for (size_t child = 0; child < root->children.size();
