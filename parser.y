@@ -35,7 +35,7 @@
 %left  '+' '-'
 %left  '*' '/' '%'
 %right PREC_UPLUS PREC_UMINUS '!' TOK_NEW TOK_ORD TOK_CHR
-%left  PREC_INDEX PREC_MEMBER PREC_CALL
+%left  PREC_INDEX PREC_MEMBER '[' '.' PREC_CALL
 %nonassoc PREC_PAREN
 
 %start start
@@ -192,11 +192,11 @@ callargs     : TOK_IDENT '('       { $2->symbol = TOK_CALL;
                                      $$ = adopt1($1,$3); }
              ;
 variable     : TOK_IDENT           { $$ = $1; }
-             | expr '[' expr ']' %prec PREC_INDEX
+             | expr '[' expr ']'
                                    { free_ast($4);
                                      $2->symbol = TOK_INDEX;
                                      $$ = adopt2($2,$1,$3); }
-             | expr '.' TOK_IDENT %prec PREC_MEMBER
+             | expr '.' TOK_IDENT
                                    { $3->symbol = TOK_FIELD;
                                      $$ = adopt2($2,$1,$3); }
              ;
