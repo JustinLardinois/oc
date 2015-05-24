@@ -113,7 +113,7 @@ statement    : block               { $$ = $1; }
 vardecl      : identdecl '=' expr ';'
                                    { free_ast($4);
                                      $2->symbol = TOK_VARDECL;
-                                     adopt2($2,$1,$3); }
+                                     $$ = adopt2($2,$1,$3); }
              ;
 while        : TOK_WHILE '(' expr ')' statement
                                    { free_ast2($2,$4);
@@ -159,7 +159,7 @@ expr         : expr '=' expr       { $$ = adopt2($2,$1,$3); }
              | allocator           { $$ = $1; }
              | call                { $$ = $1; }
              | '(' expr ')' %prec PREC_PAREN
-                                   { free_ast2($1,$2);
+                                   { free_ast2($1,$3);
                                      $$ = $2; }
              | variable            { $$ = $1; }
              | constant            { $$ = $1; }
