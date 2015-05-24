@@ -46,11 +46,11 @@ astree* adoptf(astree* identdecl , astree* params , astree* block) {
    astree* root;
    if(block->lexinfo->c_str()[0] == ';') {
       free_ast(block);
-      root =  new astree(TOK_FUNCTION,identdecl->filenr,
+      root =  new astree(TOK_PROTOTYPE,identdecl->filenr,
          identdecl->linenr,identdecl->offset,"");
       adopt2(root,identdecl,params);
    }else {
-      root = new astree(TOK_PROTOTYPE,identdecl->filenr,
+      root = new astree(TOK_FUNCTION,identdecl->filenr,
          identdecl->linenr,identdecl->offset,"");
       adopt2(root,identdecl,params);
       adopt1(root,block);
