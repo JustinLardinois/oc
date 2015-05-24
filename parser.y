@@ -29,13 +29,12 @@
 %token TOK_VARDECL TOK_RETURNVOID TOK_NEWSTRING TOK_INDEX
 
 %right TOK_IF TOK_ELSE
-%right PREC_ONLYIF
 %right '='
 %left  TOK_EQ TOK_NE TOK_LT TOK_LE TOK_GT TOK_GE
 %left  '+' '-'
 %left  '*' '/' '%'
 %right PREC_UPLUS PREC_UMINUS '!' TOK_NEW TOK_ORD TOK_CHR
-%left  PREC_INDEX PREC_MEMBER '[' '.' PREC_CALL
+%left  '[' '.' PREC_CALL
 %nonassoc PREC_PAREN
 
 %start start
@@ -120,16 +119,15 @@ while        : TOK_WHILE '(' expr ')' statement
                                    { free_ast2($2,$4);
                                      $$ = adopt2($1,$3,$5); }
              ;
-ifelse       : if %prec PREC_ONLYIF
-                                   { $$ = $1; }
-             | if TOK_ELSE statement
-                                   { free_ast($2);
-                                     $1->symbol = TOK_IFELSE;
-                                     $$ = adopt1($1,$3); }
-             ;
-if           : TOK_IF '(' expr ')' statement
+ifelse       : TOK_IF '(' expr ')' statement %prec TOK_IF
                                    { free_ast2($2,$4);
                                      $$ = adopt2($1,$3,$5); }
+             | TOK_IF '(' expr ')' statement TOK_ELSE statement
+                                   { free_ast2($2,$4);
+                                     free_ast($6);
+                                     $1->symbol = TOK_IFELSE;
+                                     adopt2($1,$3,$5);
+                                     $$ = adopt1($1,$7); }
              ;
 return       : TOK_RETURN ';'      { free_ast($2);
                                      $1->symbol = TOK_RETURNVOID;
@@ -192,12 +190,10 @@ callargs     : TOK_IDENT '('       { $2->symbol = TOK_CALL;
                                      $$ = adopt1($1,$3); }
              ;
 variable     : TOK_IDENT           { $$ = $1; }
-             | expr '[' expr ']'
-                                   { free_ast($4);
+             | expr '[' expr ']'   { free_ast($4);
                                      $2->symbol = TOK_INDEX;
                                      $$ = adopt2($2,$1,$3); }
-             | expr '.' TOK_IDENT
-                                   { $3->symbol = TOK_FIELD;
+             | expr '.' TOK_IDENT  { $3->symbol = TOK_FIELD;
                                      $$ = adopt2($2,$1,$3); }
              ;
 constant     : TOK_INTCON          { $$ = $1; }
