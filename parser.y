@@ -85,7 +85,7 @@ functionargs : '('                 { $1->symbol = TOK_PARAMLIST;
                                      $$ = adopt1($1,$2); }
              | functionargs ',' identdecl
                                    { free_ast($2);
-                                     $$ = adopt1($1,$2); }
+                                     $$ = adopt1($1,$3); }
              ;
 identdecl    : basetype TOK_IDENT  { $2->symbol = TOK_DECLID;
                                      $$ = adopt1($1,$2); }
