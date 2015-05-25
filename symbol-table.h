@@ -1,4 +1,5 @@
-// $Id: symbol-table-code.cpp,v 1.6 2015-05-13 14:40:56-07 - - $
+// Justin Lardinois jlardino@ucsc.edu
+// symbol-table.h - definitions for symbol table ADT
 
 #include <bitset>
 #include <string>
