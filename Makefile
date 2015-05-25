@@ -2,7 +2,7 @@
 # Makefile for oc
 
 ASG          = asg3
-CPPHEADERS   = astree.h auxlib.h stringset.h lyutils.h
+CPPHEADERS   = astree.h auxlib.h lyutils.h stringset.h symbol-table.h
 CPPSOURCES   = ${CPPHEADERS:.h=.cpp} main.cpp 
 DELIVERABLES = ${CPPHEADERS} ${CPPSOURCES} ${LSOURCE} ${YSOURCE} \
                Makefile README
@@ -35,6 +35,9 @@ main.o: main.cpp auxlib.h lyutils.h stringset.h
 	${GPP} -c $<
 
 stringset.o: stringset.cpp stringset.h
+	${GPP} -c $<
+
+symbol-table.o: symbol-table.cpp symbol-table.h
 	${GPP} -c $<
 
 # three levels of hacks:
