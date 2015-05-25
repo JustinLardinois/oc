@@ -37,7 +37,7 @@ main.o: main.cpp auxlib.h lyutils.h stringset.h
 stringset.o: stringset.cpp stringset.h
 	${GPP} -c $<
 
-symbol-table.o: symbol-table.cpp symbol-table.h astree.h
+symbol-table.o: symbol-table.cpp symbol-table.h astree.h yyparse.h
 	${GPP} -c $<
 
 # three levels of hacks:
