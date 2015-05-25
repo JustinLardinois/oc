@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "astree.h"
+
 enum { ATTR_void, ATTR_bool, ATTR_char, ATTR_int, ATTR_null,
        ATTR_string, ATTR_struct, ATTR_array, ATTR_function,
        ATTR_variable, ATTR_field, ATTR_typeid, ATTR_param,
@@ -27,3 +29,5 @@ struct symbol {
 };
 
 extern std::vector<symbol_table*> symbol_stack;
+
+symbol_table* create_symbol_table(astree* root);
