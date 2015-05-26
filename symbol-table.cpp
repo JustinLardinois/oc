@@ -10,9 +10,13 @@ std::vector<symbol_table*> symbol_stack;
 
 int next_block = 1;
 
-symbol_table* create_symbol_table(astree* root) {
-   switch(root->symbol) {
+symbol_table* create_symbol_table(astree* node) {
+   switch(node->symbol) {
       case TOK_ROOT:
+         for(auto child: node->children) {
+            create_symbol_table(child);
+         }
+         break;
       case TOK_STRUCT:
       case TOK_FUNCTION:
       case TOK_PROTOTYPE:

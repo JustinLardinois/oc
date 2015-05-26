@@ -30,4 +30,4 @@ struct symbol {
 
 extern std::vector<symbol_table*> symbol_stack;
 
-symbol_table* create_symbol_table(astree* root);
+symbol_table* create_symbol_table(astree* node);
