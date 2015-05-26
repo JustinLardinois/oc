@@ -13,6 +13,7 @@ int next_block = 1;
 symbol_table* create_symbol_table(astree* node) {
    switch(node->symbol) {
       case TOK_ROOT:
+         symbol_stack.push_back(new symbol_table());
          for(auto child: node->children) create_symbol_table(child);
          break;
       case TOK_STRUCT:
