@@ -17,7 +17,7 @@ enum { ATTR_void, ATTR_bool, ATTR_char, ATTR_int, ATTR_null,
 using attr_bitset = std::bitset<ATTR_bitset_size>;
 
 struct symbol;
-using symbol_table = std::unordered_map<std::string*,symbol*>;
+using symbol_table = std::unordered_map<const std::string*,symbol*>;
 using symbol_entry = symbol_table::value_type;
 
 struct symbol {
@@ -26,8 +26,12 @@ struct symbol {
    size_t filenr, linenr, offset;
    size_t blocknr;
    std::vector<symbol*>* parameters;
+   symbol(astree* node , size_t blocknr) :
+      fields(nullptr) , filenr(node->filenr) , linenr(node->linenr) ,
+      offset(node->offset) , blocknr(blocknr) {}
 };
 
 extern std::vector<symbol_table*> symbol_stack;
+extern int error_count;
 
-symbol_table* create_symbol_table(astree* node);
+void create_symbol_table(astree* node);
