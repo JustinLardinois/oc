@@ -4,6 +4,7 @@
 *.output
 *.str
 *.swp
+*.sym
 *.tok
 oc
 yylex.cpp
