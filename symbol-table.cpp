@@ -37,35 +37,37 @@ void parse_struct(astree* node) {
    s->attributes.set(ATTR_struct);
    s->attributes.set(ATTR_typeid);
 
-   // parse for struct fields
+   // loop over fields
+   // unsigned counter to avoid warnings about comparison
+   // to size_t returned from size() in condition
    for(unsigned int i = 1; i < node->children.size(); ++i) {
       if(s->fields == nullptr) s->fields = new symbol_table();
 
       astree* child = node->children[i];
-      int type;
+      int token_code;
       symbol* field;
       const string* ident;
 
       if(child->symbol == TOK_ARRAY) {
-         type = child->children[0]->symbol;
+         token_code = child->children[0]->symbol;
          field = new symbol(child->children[1],0);
          field->attributes.set(ATTR_array);
          ident = child->children[1]->lexinfo;
       } else {
-         type = child->symbol;
+         token_code = child->symbol;
          field = new symbol(child->children[0],0);
          ident = child->children[0]->lexinfo;
          s->fields->emplace(node->children[i]->lexinfo,
             new symbol(node->children[i],0));
       }
 
-      if(type == TOK_VOID) {
+      if(token_code == TOK_VOID) {
          errprintf("%d:%d:%d: fields may not be of type void\n",
             field->filenr,field->linenr,field->offset);
          error_count++;
       }
 
-      field->attributes.set(yy_to_enum(type));
+      field->attributes.set(yy_to_enum(token_code));
       field->attributes.set(ATTR_field);
       s->fields->emplace(ident,field);
    }
