@@ -72,18 +72,24 @@ void parse_struct(astree* node) {
       s->fields->emplace(ident,field);
    }
 
-   try {
-      if(symbol_stack[0]->at(node->children[0]->lexinfo)->fields
-         == nullptr) {
-         symbol_stack[0]->emplace(node->children[0]->lexinfo,s);
-      } else {
+   const string* struct_name = node->children[0]->lexinfo;
+
+   // literal calls to operator[] are necessary because
+   // C++ operator overloading does not support pointers
+
+   if(symbol_stack[0]->count(struct_name)) {
+   // if this struct type has already been declared
+      if(symbol_stack[0]->operator[](struct_name)->fields == nullptr) {
+      // if this struct type has been declared but not defined
+         symbol_stack[0]->operator[](struct_name) = s;
+      } else { // if this struct has already been defined
          errprintf("%d:%d:%d: multiple definition of struct %s\n",
             node->filenr,node->linenr,node->offset,
             node->children[0]->lexinfo->c_str());
          error_count++;
       }
-   } catch(const std::out_of_range& oor) {
-      symbol_stack[0]->emplace(node->children[0]->lexinfo,s);
+   } else { // if this struct type is not yet declared
+      symbol_stack[0]->operator[](struct_name) = s;
    }
 }
 
