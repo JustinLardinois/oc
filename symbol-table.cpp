@@ -209,6 +209,7 @@ void parse_function(astree* node) {
       current_function = s;
       parse_block(node->children[2]);
       current_function = nullptr;
+      symbol_stack.pop_back();
    }
 }
 
@@ -218,6 +219,7 @@ void create_symbol_table(astree* node) {
          // initialize symbol stack
          symbol_stack.push_back(new symbol_table());
          for(auto child: node->children) create_symbol_table(child);
+         symbol_stack.pop_back();
          return;
       case TOK_STRUCT:
          return parse_struct(node);
@@ -225,6 +227,10 @@ void create_symbol_table(astree* node) {
       case TOK_PROTOTYPE:
          return parse_function(node);
       case TOK_BLOCK:
+         symbol_stack.push_back(new symbol_table());
+         parse_block(node);
+         symbol_stack.pop_back();
+         return;
       case TOK_VARDECL:
       case TOK_WHILE:
       case TOK_IF:
