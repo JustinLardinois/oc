@@ -6,6 +6,8 @@
 #include "symbol-table.h"
 
 std::vector<symbol_table*> symbol_stack;
+symbol_table struct_table;
+
 int error_count = 0;
 
 int next_block = 1;
@@ -73,14 +75,11 @@ void parse_struct(astree* node) {
 
    const string* struct_name = node->children[0]->lexinfo;
 
-   // literal calls to operator[] are necessary because
-   // C++ operator overloading does not support pointers
-
-   if(symbol_stack[0]->count(struct_name)) {
+   if(struct_table.count(struct_name)) {
    // if this struct type has already been declared
-      if(symbol_stack[0]->operator[](struct_name)->fields == nullptr) {
+      if(struct_table[struct_name]->fields == nullptr) {
       // if this struct type has been declared but not defined
-         symbol_stack[0]->operator[](struct_name) = s;
+         struct_table[struct_name] = s;
       } else { // if this struct has already been defined
          errprintf("%d:%d:%d: multiple definition of struct %s\n",
             node->filenr,node->linenr,node->offset,
@@ -88,7 +87,7 @@ void parse_struct(astree* node) {
          error_count++;
       }
    } else { // if this struct type is not yet declared
-      symbol_stack[0]->operator[](struct_name) = s;
+      struct_table[struct_name] = s;
    }
 }
 
