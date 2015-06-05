@@ -118,7 +118,10 @@ bool matching_parameters(symbol* x , symbol* y) {
    return true;
 }
 
-void parse_block(astree* node) {(void)node;}
+void parse_block(astree* node , int blocknr) {
+   (void)node;
+   (void)blocknr;
+}
 
 void parse_function(astree* node) {
    symbol* s = new symbol(node,0);
@@ -140,11 +143,13 @@ void parse_function(astree* node) {
    // block to be potentially populated with
    symbol_table* block = nullptr;
 
+   int child_blocknr = -1;
+
    // process parameter list
    vector<astree*>& params = node->children[1]->children;
    if(params.size()) {
       s->parameters = new vector<symbol*>();
-      int blocknr = next_block;
+      blocknr = next_block;
       next_block++;
       block = new symbol_table();
 
@@ -204,10 +209,14 @@ void parse_function(astree* node) {
       s->attributes.set(ATTR_prototype);
    } else {
       s->attributes.set(ATTR_function);
-      if(block == nullptr) block = new symbol_table();
+      if(block == nullptr) {
+         block = new symbol_table();
+         child_blocknr = next_block;
+         next_block++;
+      }
       symbol_stack.push_back(block);
       current_function = s;
-      parse_block(node->children[2]);
+      parse_block(node->children[2],child_blocknr);
       current_function = nullptr;
       symbol_stack.pop_back();
    }
@@ -228,7 +237,9 @@ void create_symbol_table(astree* node) {
          return parse_function(node);
       case TOK_BLOCK:
          symbol_stack.push_back(new symbol_table());
-         parse_block(node);
+         int blocknr = next_block;
+         next_block++;
+         parse_block(node,blocknr);
          symbol_stack.pop_back();
          return;
       case TOK_VARDECL:
