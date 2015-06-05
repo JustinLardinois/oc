@@ -8,6 +8,9 @@
 std::vector<symbol_table*> symbol_stack;
 symbol_table struct_table;
 
+// to be referenced during block traversal
+symbol* current_function = nullptr;
+
 int error_count = 0;
 
 int next_block = 1;
@@ -91,6 +94,126 @@ void parse_struct(astree* node) {
    }
 }
 
+// returns true if the two symbols have equivalent parameters
+bool matching_parameters(symbol* x , symbol* y) {
+   if(x->parameters == nullptr && y->parameters == nullptr) {
+      return true;
+   } else if(!(x->parameters != nullptr && y->parameters != nullptr)) {
+      return false;
+   } else if(x->parameters->size() != y->parameters->size()) {
+      return false;
+   } else {
+      for(unsigned int i = 0; i < x->parameters->size(); i++) {
+         attr_bitset xattrs = x->parameters->operator[](i)->attributes;
+         attr_bitset yattrs = y->parameters->operator[](i)->attributes;
+         if(!(xattrs[ATTR_void] == yattrs[ATTR_void] &&
+              xattrs[ATTR_bool] == yattrs[ATTR_bool] &&
+              xattrs[ATTR_char] == yattrs[ATTR_char] &&
+              xattrs[ATTR_int] == yattrs[ATTR_int] &&
+              xattrs[ATTR_string] == yattrs[ATTR_string] &&
+              xattrs[ATTR_array] == yattrs[ATTR_array] &&
+              xattrs[ATTR_typeid] == yattrs[ATTR_typeid])) {
+            return false;
+         }
+      }
+   }
+   return true;
+}
+
+void parse_block(astree* node) {(void)node;}
+
+void parse_function(astree* node) {
+   symbol* s = new symbol(node,0);
+   int return_type;
+   const string* function_name;
+
+   // sort out return_type and function_name
+   if(node->children[0]->symbol == TOK_ARRAY) {
+      return_type = node->children[0]->children[0]->symbol;
+      function_name = node->children[0]->children[1]->lexinfo;
+      s->attributes.set(ATTR_array);
+   } else {
+      return_type = node->children[0]->symbol;
+      function_name = node->children[0]->children[0]->lexinfo;
+   }
+
+   s->attributes.set(yy_to_enum(return_type));
+
+   // block to be potentially populated with
+   symbol_table* block = nullptr;
+
+   // process parameter list
+   vector<astree*>& params = node->children[1]->children;
+   if(params.size()) {
+      s->parameters = new vector<symbol*>();
+      int blocknr = next_block;
+      next_block++;
+      block = new symbol_table();
+
+      for(unsigned int i = 0; i < params.size(); ++i) {
+         symbol* p = new symbol(params[i],blocknr);
+         p->attributes.set(ATTR_param);
+         int param_type;
+         const string* param_name;
+
+         if(params[i]->symbol == TOK_ARRAY) {
+            param_type = params[i]->children[0]->symbol;
+            param_name = params[i]->children[1]->lexinfo;
+            p->attributes.set(ATTR_array);
+         } else {
+            param_type = params[i]->symbol;
+            param_name = params[i]->children[0]->lexinfo;
+         }
+
+         if(param_type == TOK_VOID) {
+            errprintf("%d:%d:%d: function parameters may not be of "
+               "type void\n",p->filenr,p->linenr,p->offset);
+            error_count++;
+         }
+
+         p->attributes.set(yy_to_enum(param_type));
+         s->parameters->push_back(p);
+         block->emplace(param_name,p);
+      }
+   }
+
+   if(symbol_stack[0]->count(function_name)){
+   // if function already declared
+      symbol* declaration = symbol_stack[0]->operator[](function_name);
+      if(declaration->attributes[ATTR_function]) {
+      // if function already defined
+         errprintf("%d:%d:%d: multiple definition of function %s\n",
+            node->filenr,node->linenr,node->offset,
+            function_name->c_str());
+         error_count++;
+         return;
+      } else { // if function declared but not defined
+         if(matching_parameters(declaration,s)) {
+            symbol_stack[0]->operator[](function_name) = s;
+         } else {
+            errprintf("%d:%d:%d: definition of function %s "
+               "incompatible with previous declaration\n",
+               node->filenr,node->linenr,node->offset,
+               function_name->c_str());
+            error_count++;
+            return;
+         }
+      }
+   } else symbol_stack[0]->emplace(function_name,s);
+
+   // handle function body if necessary
+   if(node->symbol == TOK_PROTOTYPE) {
+      s->attributes.set(ATTR_prototype);
+   } else {
+      s->attributes.set(ATTR_function);
+      if(block == nullptr) block = new symbol_table();
+      symbol_stack.push_back(block);
+      current_function = s;
+      parse_block(node->children[2]);
+      current_function = nullptr;
+   }
+}
+
 void create_symbol_table(astree* node) {
    switch(node->symbol) {
       case TOK_ROOT:
@@ -102,6 +225,7 @@ void create_symbol_table(astree* node) {
          return parse_struct(node);
       case TOK_FUNCTION:
       case TOK_PROTOTYPE:
+         return parse_function(node);
       case TOK_BLOCK:
       case TOK_VARDECL:
       case TOK_WHILE:
