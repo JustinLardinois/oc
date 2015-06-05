@@ -83,7 +83,7 @@ void parse_struct(astree* node) {
       } else { // if this struct has already been defined
          errprintf("%d:%d:%d: multiple definition of struct %s\n",
             node->filenr,node->linenr,node->offset,
-            node->children[0]->lexinfo->c_str());
+            struct_name->c_str());
          error_count++;
       }
    } else { // if this struct type is not yet declared
