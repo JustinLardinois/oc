@@ -42,8 +42,6 @@ void parse_struct(astree* node) {
    s->attributes.set(ATTR_typeid);
 
    // loop over fields
-   // unsigned counter to avoid warnings about comparison
-   // to size_t returned from size() in condition
    for(unsigned int i = 1; i < node->children.size(); ++i) {
       if(s->fields == nullptr) s->fields = new symbol_table();
 
