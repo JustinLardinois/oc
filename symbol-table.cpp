@@ -5,7 +5,6 @@
 
 #include "symbol-table.h"
 
-// declared extern in header
 std::vector<symbol_table*> symbol_stack;
 int error_count = 0;
 

@@ -31,7 +31,6 @@ struct symbol {
       offset(node->offset) , blocknr(blocknr) {}
 };
 
-extern std::vector<symbol_table*> symbol_stack;
 extern int error_count;
 
 void create_symbol_table(astree* node);
