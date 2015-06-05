@@ -15,6 +15,8 @@ int error_count = 0;
 
 int next_block = 1;
 
+int current_block = -1;
+
 int yy_to_enum(int type) {
    switch(type) {
       case TOK_VOID:
@@ -118,9 +120,8 @@ bool matching_parameters(symbol* x , symbol* y) {
    return true;
 }
 
-void parse_block(astree* node , int blocknr) {
+void parse_block(astree* node) {
    (void)node;
-   (void)blocknr;
 }
 
 void parse_function(astree* node) {
@@ -143,18 +144,16 @@ void parse_function(astree* node) {
    // block to be potentially populated with
    symbol_table* block = nullptr;
 
-   int child_blocknr = -1;
-
    // process parameter list
    vector<astree*>& params = node->children[1]->children;
    if(params.size()) {
       s->parameters = new vector<symbol*>();
-      blocknr = next_block;
+      current_block = next_block;
       next_block++;
       block = new symbol_table();
 
       for(unsigned int i = 0; i < params.size(); ++i) {
-         symbol* p = new symbol(params[i],blocknr);
+         symbol* p = new symbol(params[i],current_block);
          p->attributes.set(ATTR_param);
          int param_type;
          const string* param_name;
@@ -211,12 +210,12 @@ void parse_function(astree* node) {
       s->attributes.set(ATTR_function);
       if(block == nullptr) {
          block = new symbol_table();
-         child_blocknr = next_block;
+         current_block = next_block;
          next_block++;
       }
       symbol_stack.push_back(block);
       current_function = s;
-      parse_block(node->children[2],child_blocknr);
+      parse_block(node->children[2]);
       current_function = nullptr;
       symbol_stack.pop_back();
    }
@@ -237,9 +236,9 @@ void create_symbol_table(astree* node) {
          return parse_function(node);
       case TOK_BLOCK:
          symbol_stack.push_back(new symbol_table());
-         int blocknr = next_block;
+         current_block = next_block;
          next_block++;
-         parse_block(node,blocknr);
+         parse_block(node);
          symbol_stack.pop_back();
          return;
       case TOK_VARDECL:
