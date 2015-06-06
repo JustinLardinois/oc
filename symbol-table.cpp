@@ -267,6 +267,43 @@ void parse_if(astree* node) {
    }
 }
 
+symbol* parse_expression(astree* node) {
+   switch(node->symbol) {
+      case '=':
+      case TOK_EQ:
+      case TOK_NE:
+      case TOK_LT:
+      case TOK_LE:
+      case TOK_GT:
+      case TOK_GE:
+      case '+':
+      case '-':
+      case '*':
+      case '/':
+      case '%':
+      case TOK_POS:
+      case TOK_NEG:
+      case '!':
+      case TOK_ORD:
+      case TOK_CHR:
+      case TOK_NEW:
+      case TOK_NEWSTRING:
+      case TOK_NEWARRAY:
+      case TOK_CALL:
+      case TOK_IDENT:
+      case TOK_INDEX:
+      case TOK_FIELD:
+      case TOK_INTCON:
+      case TOK_CHARCON:
+      case TOK_STRINGCON:
+      case TOK_FALSE:
+      case TOK_TRUE:
+      case TOK_NULL:
+         break;
+   }
+   return nullptr;
+}
+
 void create_symbol_table(astree* node) {
    switch(node->symbol) {
       case TOK_ROOT:
@@ -296,6 +333,9 @@ void create_symbol_table(astree* node) {
          return parse_if(node);
       case TOK_RETURN:
       case TOK_RETURNVOID:
-         break;
+         return;
+      default:
+         parse_expression(node);
+         return;
    }
 }
