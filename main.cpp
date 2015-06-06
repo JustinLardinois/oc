@@ -123,6 +123,7 @@ int main (int argc, char** argv) {
    fclose(ast_file);
 
    fclose(fopen((string(program_name) + ".sym").c_str(),"w"));
+   fclose(fopen((string(program_name) + ".oil").c_str(),"w"));
 
    return get_exitstatus();
 }
