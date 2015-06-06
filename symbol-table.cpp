@@ -256,6 +256,10 @@ void parse_vardecl(astree* node) {
    }
 }
 
+void parse_while(astree* node) {
+   create_symbol_table(node->children[1]);
+}
+
 void create_symbol_table(astree* node) {
    switch(node->symbol) {
       case TOK_ROOT:
@@ -279,6 +283,7 @@ void create_symbol_table(astree* node) {
       case TOK_VARDECL:
          return parse_vardecl(node);
       case TOK_WHILE:
+         return parse_while(node);
       case TOK_IF:
       case TOK_IFELSE:
       case TOK_RETURN:
