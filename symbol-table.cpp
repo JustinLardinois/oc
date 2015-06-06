@@ -17,6 +17,8 @@ int next_block = 1;
 
 int current_block = -1;
 
+symbol* parse_expression(astree* node);
+
 int yy_to_enum(int type) {
    switch(type) {
       case TOK_VOID:
@@ -271,9 +273,46 @@ void parse_if(astree* node) {
    }
 }
 
+bool compatible_types(symbol* x , symbol* y){
+   return 
+      x->attributes[ATTR_void] == y->attributes[ATTR_void] &&
+      x->attributes[ATTR_bool] == y->attributes[ATTR_bool] &&
+      x->attributes[ATTR_char] == y->attributes[ATTR_char] &&
+      x->attributes[ATTR_int]  == y->attributes[ATTR_int]  &&
+      x->attributes[ATTR_string] == y->attributes[ATTR_string] &&
+      x->attributes[ATTR_array] == y->attributes[ATTR_array] &&
+      x->attributes[ATTR_typeid] == y->attributes[ATTR_typeid];
+}
+
+symbol* parse_assignment(astree* node) {
+   symbol* left = parse_expression(node->children[0]);
+   symbol* right = parse_expression(node->children[1]);
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes = left->attributes;
+   s->attributes.reset(ATTR_lval);
+   if(right->attributes[ATTR_vreg]) s->attributes.set(ATTR_vreg);
+   else s->attributes.set(ATTR_vaddr);
+
+   if(!left->attributes[ATTR_lval]) {
+      errprintf("%d:%d:%d: attempt to assign value to non-variable "
+         "expression\n",node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   if(!compatible_types(left,right)) {
+      errprintf("%d:%d:%d: attempt to assign value to variable of "
+         " disparate type\n",node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
+         return parse_assignment(node);
       case TOK_EQ:
       case TOK_NE:
       case TOK_LT:
