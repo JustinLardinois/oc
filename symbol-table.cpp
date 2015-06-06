@@ -309,12 +309,29 @@ symbol* parse_assignment(astree* node) {
    return s;
 }
 
+symbol* parse_eq(astree* node) {
+   symbol* left = parse_expression(node->children[0]);
+   symbol* right = parse_expression(node->children[1]);
+
+   if(!compatible_types(left,right)) {
+      errprintf("%d:%d:%d: comparison of disparate types\n",
+         node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_bool);
+   s->attributes.set(ATTR_vreg);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
          return parse_assignment(node);
       case TOK_EQ:
       case TOK_NE:
+         return parse_eq(node);
       case TOK_LT:
       case TOK_LE:
       case TOK_GT:
