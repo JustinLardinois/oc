@@ -1,6 +1,7 @@
 *.ast
 *.o
 *.oc
+*.oil
 *.output
 *.str
 *.swp
