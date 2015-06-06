@@ -43,6 +43,8 @@ void parse_struct(astree* node) {
    s->attributes.set(ATTR_struct);
    s->attributes.set(ATTR_typeid);
 
+   const string* struct_name = node->children[0]->lexinfo;
+
    // loop over fields
    for(unsigned int i = 1; i < node->children.size(); ++i) {
       if(s->fields == nullptr) s->fields = new symbol_table();
@@ -61,8 +63,6 @@ void parse_struct(astree* node) {
          token_code = child->symbol;
          field = new symbol(child->children[0],0);
          ident = child->children[0]->lexinfo;
-         s->fields->emplace(node->children[i]->lexinfo,
-            new symbol(node->children[i],0));
       }
 
       if(token_code == TOK_VOID) {
@@ -73,10 +73,16 @@ void parse_struct(astree* node) {
 
       field->attributes.set(yy_to_enum(token_code));
       field->attributes.set(ATTR_field);
-      s->fields->emplace(ident,field);
-   }
 
-   const string* struct_name = node->children[0]->lexinfo;
+      if(s->fields->count(ident)) {
+         errprintf("%d:%d:%d: multiple fields named %s in struct %s\n",
+            field->filenr,field->linenr,field->offset,ident,
+            struct_name);
+         error_count++;
+      } else {
+         s->fields->emplace(ident,field);
+      }
+   }
 
    if(struct_table.count(struct_name)) {
    // if this struct type has already been declared
