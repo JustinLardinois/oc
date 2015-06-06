@@ -247,12 +247,12 @@ void parse_vardecl(astree* node) {
 
    s->attributes.set(yy_to_enum(var_type));
 
-   if(symbol_stack.back->count(var_name)) {
+   if(symbol_stack.back()->count(var_name)) {
       errprintf("%d:%d:%d: variable %s already defined in current "
          "scope\n",s->filenr,s->linenr,s->offset,var_name->c_str());
       error_count++;
    } else {
-      symbol_stack.back->emplace(var_name,s);
+      symbol_stack.back()->emplace(var_name,s);
    }
 }
 
