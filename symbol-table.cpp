@@ -225,6 +225,31 @@ void parse_function(astree* node) {
    }
 }
 
+void parse_vardecl(astree* node) {
+   symbol* s = new symbol(node,current_block);
+   int var_type;
+   const string* var_name;
+
+   if(node->children[0]->symbol == TOK_ARRAY) {
+      var_type = node->children[0]->children[0]->symbol;
+      var_name = node->children[0]->children[1]->lexinfo;
+      s->attributes.set(ATTR_array);
+   } else {
+      var_type = node->children[0]->symbol;
+      var_name = node->children[0]->children[0]->lexinfo;
+   }
+
+   s->attributes.set(yy_to_enum(var_type));
+
+   if(symbol_stack.back->count(var_name)) {
+      errprintf("%d:%d:%d: variable %s already defined in current "
+         "scope\n",s->filenr,s->linenr,s->offset,var_name->c_str());
+      error_count++;
+   } else {
+      symbol_stack.back->emplace(var_name,s);
+   }
+}
+
 void create_symbol_table(astree* node) {
    switch(node->symbol) {
       case TOK_ROOT:
@@ -246,6 +271,7 @@ void create_symbol_table(astree* node) {
          symbol_stack.pop_back();
          return;
       case TOK_VARDECL:
+         return parse_vardecl(node);
       case TOK_WHILE:
       case TOK_IF:
       case TOK_IFELSE:
