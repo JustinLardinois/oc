@@ -325,6 +325,22 @@ symbol* parse_eq(astree* node) {
    return s;
 }
 
+symbol* parse_cmp(astree* node) {
+   symbol* left = parse_expression(node->children[0]);
+   symbol* right = parse_expression(node->children[1]);
+
+   if(!left->attributes[ATTR_int] || !right->attributes[ATTR_int]) {
+      errprintf("%d:%d:%d: comparison of disparate types\n",
+         node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_bool);
+   s->attributes.set(ATTR_vreg);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -336,6 +352,7 @@ symbol* parse_expression(astree* node) {
       case TOK_LE:
       case TOK_GT:
       case TOK_GE:
+         return parse_cmp(node);
       case '+':
       case '-':
       case '*':
