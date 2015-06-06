@@ -341,6 +341,22 @@ symbol* parse_cmp(astree* node) {
    return s;
 }
 
+symbol* parse_math(astree* node) {
+   symbol* left = parse_expression(node->children[0]);
+   symbol* right = parse_expression(node->children[1]);
+
+   if(!left->attributes[ATTR_int] || !right->attributes[ATTR_int]) {
+      errprintf("%d:%d:%d: arithmetic operands must be integers\n",
+         node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_int);
+   s->attributes.set(ATTR_vreg);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -358,6 +374,7 @@ symbol* parse_expression(astree* node) {
       case '*':
       case '/':
       case '%':
+         return parse_math(node);
       case TOK_POS:
       case TOK_NEG:
       case '!':
