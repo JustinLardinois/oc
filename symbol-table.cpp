@@ -197,7 +197,7 @@ void parse_function(astree* node) {
          if(matching_parameters(declaration,s)) {
             symbol_stack[0]->operator[](function_name) = s;
          } else {
-            errprintf("%d:%d:%d: definition of function %s "
+            errprintf("%d:%d:%d: declaration of function %s "
                "incompatible with previous declaration\n",
                node->filenr,node->linenr,node->offset,
                function_name->c_str());
