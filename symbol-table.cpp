@@ -260,6 +260,13 @@ void parse_while(astree* node) {
    create_symbol_table(node->children[1]);
 }
 
+void parse_if(astree* node) {
+   create_symbol_table(node->children[1]);
+   if(node->symbol == TOK_IFELSE) {
+      create_symbol_table(node->children[2]);
+   }
+}
+
 void create_symbol_table(astree* node) {
    switch(node->symbol) {
       case TOK_ROOT:
@@ -286,6 +293,7 @@ void create_symbol_table(astree* node) {
          return parse_while(node);
       case TOK_IF:
       case TOK_IFELSE:
+         return parse_if(node);
       case TOK_RETURN:
       case TOK_RETURNVOID:
          break;
