@@ -372,6 +372,21 @@ symbol* parse_sign(astree* node) {
    return s;
 }
 
+symbol* parse_ord(astree* node) {
+   symbol* op = parse_expression(node->children[0]);
+
+   if(!op->attributes[ATTR_char]) {
+      errprintf("%d:%d:%d: ord operator applied to non-character "
+         "expression\n",node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_int);
+   s->attributes.set(ATTR_vreg);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -394,7 +409,9 @@ symbol* parse_expression(astree* node) {
       case TOK_NEG:
          return parse_sign(node);
       case '!':
+         return nullptr;
       case TOK_ORD:
+         return parse_ord(node);
       case TOK_CHR:
       case TOK_NEW:
       case TOK_NEWSTRING:
