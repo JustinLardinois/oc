@@ -165,6 +165,8 @@ void parse_function(astree* node) {
       for(unsigned int i = 0; i < params.size(); ++i) {
          symbol* p = new symbol(params[i],current_block);
          p->attributes.set(ATTR_param);
+         p->attributes.set(ATTR_variable);
+         p->attributes.set(ATTR_lval);
          int param_type;
          const string* param_name;
 
@@ -233,6 +235,8 @@ void parse_function(astree* node) {
 
 void parse_vardecl(astree* node) {
    symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_variable);
+   s->attributes.set(ATTR_lval);
    int var_type;
    const string* var_name;
 
