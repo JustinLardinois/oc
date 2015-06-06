@@ -121,7 +121,11 @@ bool matching_parameters(symbol* x , symbol* y) {
 }
 
 void parse_block(astree* node) {
-   (void)node;
+   int this_blocknr = current_block;
+   for(auto statement: node->children) {
+      create_symbol_table(statement);
+      current_block = this_blocknr;
+   }
 }
 
 void parse_function(astree* node) {
