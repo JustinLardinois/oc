@@ -372,6 +372,21 @@ symbol* parse_sign(astree* node) {
    return s;
 }
 
+symbol* parse_bang(astree* node) {
+   symbol* op = parse_expression(node->children[0]);
+
+   if(!op->attributes[ATTR_bool]) {
+      errprintf("%d:%d:%d: logical negation of non-boolean "
+         "expression\n",node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_bool);
+   s->attributes.set(ATTR_vreg);
+   return s;
+}
+
 symbol* parse_ord(astree* node) {
    symbol* op = parse_expression(node->children[0]);
 
@@ -409,7 +424,7 @@ symbol* parse_expression(astree* node) {
       case TOK_NEG:
          return parse_sign(node);
       case '!':
-         return nullptr;
+         return parse_bang(node);
       case TOK_ORD:
          return parse_ord(node);
       case TOK_CHR:
