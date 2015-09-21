@@ -1,0 +1,3 @@
+vi asg4-symbols-types.mm
+touch asg4-symbols-types.mm
+make

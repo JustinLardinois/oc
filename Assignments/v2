@@ -1,0 +1,3 @@
+vi asg2-scanner.mm
+touch asg2-scanner.mm
+make

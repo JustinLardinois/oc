@@ -1,0 +1,3 @@
+vi asg1-stringset.mm
+touch asg1-stringset.mm
+make

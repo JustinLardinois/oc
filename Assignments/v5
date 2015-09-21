@@ -1,0 +1,3 @@
+vi asg5-intermed-lang.mm
+touch asg5-intermed-lang.mm
+make
