@@ -1,6 +1,6 @@
 *.ast
 *.o
-*.oc
+./*.oc
 *.oil
 *.output
 *.str
