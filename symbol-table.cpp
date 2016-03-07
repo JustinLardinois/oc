@@ -417,6 +417,21 @@ symbol* parse_chr(astree* node) {
    return s;
 }
 
+symbol* parse_new(astree* node) {
+   symbol* op = parse_expression(node->children[0]);
+
+   if(!op->attributes[ATTR_typeid]) {
+      errprintf("%d:%d:%d: new operator used with primitive type",
+         node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_typeid);
+   s->attributes.set(vreg);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -445,6 +460,7 @@ symbol* parse_expression(astree* node) {
       case TOK_CHR:
          return parse_chr(node);
       case TOK_NEW:
+         return parse_new(node);
       case TOK_NEWSTRING:
       case TOK_NEWARRAY:
       case TOK_CALL:
