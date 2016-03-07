@@ -45,9 +45,9 @@ symbol-table.o: symbol-table.cpp symbol-table.h astree.h yyparse.h
 #    ORing with true so make ignores grep's exit status
 #    supressing echoing and then echoing a pretty command
 ${LCPPGEN}: ${LSOURCE}
-	@ flex --outfile=${LCPPGEN} $< |& \
-	grep -v -e "^  " -e "^flex version" || true && \
-	echo "flex --outfile=${LCPPGEN} $<"
+	@ echo "flex --outfile=${LCPPGEN} $<" && \
+	flex --outfile=${LCPPGEN} $< |& \
+	grep -v -e "^  " -e "^flex version" || true
 
 ${LCPPGENO}: ${LCPPGEN}
 	${GPP} -c $<
