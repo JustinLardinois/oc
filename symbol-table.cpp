@@ -402,6 +402,21 @@ symbol* parse_ord(astree* node) {
    return s;
 }
 
+symbol* parse_chr(astree* node) {
+   symbol* op = parse_expression(node->children[0]);
+
+   if(!op->attributes[ATTR_int]) {
+      errprintf("%d:%d:%d: chr operator applied to non-integer "
+         "expression\n",node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_char);
+   s->attributes.set(ATTR_vreg);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -428,6 +443,7 @@ symbol* parse_expression(astree* node) {
       case TOK_ORD:
          return parse_ord(node);
       case TOK_CHR:
+         return parse_chr(node);
       case TOK_NEW:
       case TOK_NEWSTRING:
       case TOK_NEWARRAY:
