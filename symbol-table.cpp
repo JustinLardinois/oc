@@ -273,15 +273,22 @@ void parse_if(astree* node) {
    }
 }
 
+// kinda turned into a mess because reference types can be null
 bool compatible_types(symbol* x , symbol* y){
-   return 
+   return
       x->attributes[ATTR_void] == y->attributes[ATTR_void] &&
       x->attributes[ATTR_bool] == y->attributes[ATTR_bool] &&
       x->attributes[ATTR_char] == y->attributes[ATTR_char] &&
       x->attributes[ATTR_int]  == y->attributes[ATTR_int]  &&
-      x->attributes[ATTR_string] == y->attributes[ATTR_string] &&
       x->attributes[ATTR_array] == y->attributes[ATTR_array] &&
-      x->attributes[ATTR_typeid] == y->attributes[ATTR_typeid];
+      (x->attributes[ATTR_string] == y->attributes[ATTR_string] ||
+      (x->attributes[ATTR_string] && y->attributes[ATTR_null]) ||
+      (x->attributes[ATTR_null] && y->attributes[ATTR_null]) ||
+      (x->attributes[ATTR_null] && y->attributes[ATTR_null])) &&
+      (x->attributes[ATTR_typeid] == y->attributes[ATTR_typeid] ||
+      (x->attributes[ATTR_typeid] && y->attributes[ATTR_null]) ||
+      (x->attributes[ATTR_null] && y->attributes[ATTR_typeid]) ||
+      (x->attributes[ATTR_null] && y->attributes[ATTR_null]));
 }
 
 symbol* parse_assignment(astree* node) {
