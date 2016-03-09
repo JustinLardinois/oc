@@ -435,7 +435,7 @@ symbol* parse_new(astree* node) {
 
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_typeid);
-   s->attributes.set(vreg);
+   s->attributes.set(ATTR_vreg);
    return s;
 }
 
