@@ -424,18 +424,25 @@ symbol* parse_chr(astree* node) {
    return s;
 }
 
-symbol* parse_new(astree* node) {
-   symbol* op = parse_expression(node->children[0]);
+symbol* parse_new_struct(astree* node) {
+   const string* struct_name = node->children[0]->lexinfo;
 
-   if(!op->attributes[ATTR_typeid]) {
-      errprintf("%d:%d:%d: new operator used with primitive type",
-         node->filenr,node->linenr,node->offset);
+   if(struct_table.count(struct_name)) {
+      if(struct_table[struct_name]->fields == nullptr) {
+         errprintf("%d:%d:%d: instantiation of incomplete struct type %s\n",
+            node->filenr,node->linenr,node->offset,struct_name->c_str());
+         error_count++;
+      }
+   } else {
+      errprintf("%d:%d:%d: struct type %s is undefined\n",
+         node->filenr,node->linenr,node->offset,struct_name->c_str());
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_typeid);
    s->attributes.set(ATTR_vreg);
+   s->attributes.set(ATTR_struct);
    return s;
 }
 
@@ -467,7 +474,7 @@ symbol* parse_expression(astree* node) {
       case TOK_CHR:
          return parse_chr(node);
       case TOK_NEW:
-         return parse_new(node);
+         return parse_new_struct(node);
       case TOK_NEWSTRING:
       case TOK_NEWARRAY:
       case TOK_CALL:
