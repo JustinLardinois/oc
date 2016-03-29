@@ -68,7 +68,7 @@ void parse_struct(astree* node) {
       }
 
       if(token_code == TOK_VOID) {
-         errprintf("%d:%d:%d: fields may not be of type void\n",
+         errprintf("%d:%d:%d: struct fields may not be of type void\n",
             field->filenr,field->linenr,field->offset);
          error_count++;
       }
