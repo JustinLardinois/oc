@@ -40,6 +40,24 @@ int yy_to_enum(int type) {
    }
 }
 
+// kinda turned into a mess because reference types can be null
+bool compatible_types(symbol* x , symbol* y){
+   return
+      x->attributes[ATTR_void] == y->attributes[ATTR_void] &&
+      x->attributes[ATTR_bool] == y->attributes[ATTR_bool] &&
+      x->attributes[ATTR_char] == y->attributes[ATTR_char] &&
+      x->attributes[ATTR_int]  == y->attributes[ATTR_int]  &&
+      x->attributes[ATTR_array] == y->attributes[ATTR_array] &&
+      (x->attributes[ATTR_string] == y->attributes[ATTR_string] ||
+      (x->attributes[ATTR_string] && y->attributes[ATTR_null]) ||
+      (x->attributes[ATTR_null] && y->attributes[ATTR_null]) ||
+      (x->attributes[ATTR_null] && y->attributes[ATTR_null])) &&
+      (x->attributes[ATTR_typeid] == y->attributes[ATTR_typeid] ||
+      (x->attributes[ATTR_typeid] && y->attributes[ATTR_null]) ||
+      (x->attributes[ATTR_null] && y->attributes[ATTR_typeid]) ||
+      (x->attributes[ATTR_null] && y->attributes[ATTR_null]));
+}
+
 void parse_struct(astree* node) {
    symbol* s = new symbol(node,0);
    s->attributes.set(ATTR_struct);
@@ -253,11 +271,25 @@ void parse_vardecl(astree* node) {
 
    s->attributes.set(yy_to_enum(var_type));
 
+   bool emplace = true;
+
    if(symbol_stack.back()->count(var_name)) {
       errprintf("%d:%d:%d: variable %s already defined in current "
          "scope\n",s->filenr,s->linenr,s->offset,var_name->c_str());
       error_count++;
-   } else {
+      emplace = false;
+   }
+
+   // at some point need to check if struct types are the same
+   symbol* expr = parse_expression(node->children[0]);
+   if(!compatible_types(s,expr)) {
+      errprintf("%d:%d:%d: value of incompatible type assigned in "
+         "declaration of variable %s\n",s->filenr,s->linenr,s->offset,
+         var_name->c_str());
+      error_count++;
+   }
+
+   if(emplace) {
       symbol_stack.back()->emplace(var_name,s);
    }
 }
@@ -271,24 +303,6 @@ void parse_if(astree* node) {
    if(node->symbol == TOK_IFELSE) {
       create_symbol_table(node->children[2]);
    }
-}
-
-// kinda turned into a mess because reference types can be null
-bool compatible_types(symbol* x , symbol* y){
-   return
-      x->attributes[ATTR_void] == y->attributes[ATTR_void] &&
-      x->attributes[ATTR_bool] == y->attributes[ATTR_bool] &&
-      x->attributes[ATTR_char] == y->attributes[ATTR_char] &&
-      x->attributes[ATTR_int]  == y->attributes[ATTR_int]  &&
-      x->attributes[ATTR_array] == y->attributes[ATTR_array] &&
-      (x->attributes[ATTR_string] == y->attributes[ATTR_string] ||
-      (x->attributes[ATTR_string] && y->attributes[ATTR_null]) ||
-      (x->attributes[ATTR_null] && y->attributes[ATTR_null]) ||
-      (x->attributes[ATTR_null] && y->attributes[ATTR_null])) &&
-      (x->attributes[ATTR_typeid] == y->attributes[ATTR_typeid] ||
-      (x->attributes[ATTR_typeid] && y->attributes[ATTR_null]) ||
-      (x->attributes[ATTR_null] && y->attributes[ATTR_typeid]) ||
-      (x->attributes[ATTR_null] && y->attributes[ATTR_null]));
 }
 
 symbol* parse_assignment(astree* node) {
@@ -429,8 +443,9 @@ symbol* parse_new_struct(astree* node) {
 
    if(struct_table.count(struct_name)) {
       if(struct_table[struct_name]->fields == nullptr) {
-         errprintf("%d:%d:%d: instantiation of incomplete struct type %s\n",
-            node->filenr,node->linenr,node->offset,struct_name->c_str());
+         errprintf("%d:%d:%d: instantiation of incomplete struct type"
+            " %s\n", node->filenr,node->linenr,node->offset,
+            struct_name->c_str());
          error_count++;
       }
    } else {
