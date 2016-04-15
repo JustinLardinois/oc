@@ -295,6 +295,7 @@ void parse_vardecl(astree* node) {
 }
 
 void parse_while(astree* node) {
+   symbol* condition = parse_expression(node->children[0]);
    create_symbol_table(node->children[1]);
 }
 
