@@ -300,6 +300,7 @@ void parse_while(astree* node) {
 }
 
 void parse_if(astree* node) {
+   symbol* condition = parse_expression(node->children[0]);
    create_symbol_table(node->children[1]);
    if(node->symbol == TOK_IFELSE) {
       create_symbol_table(node->children[2]);
