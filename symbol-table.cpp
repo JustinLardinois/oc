@@ -281,7 +281,7 @@ void parse_vardecl(astree* node) {
    }
 
    // at some point need to check if struct types are the same
-   symbol* expr = parse_expression(node->children[0]);
+   symbol* expr = parse_expression(node->children[1]);
    if(!compatible_types(s,expr)) {
       errprintf("%d:%d:%d: value of incompatible type assigned in "
          "declaration of variable %s\n",s->filenr,s->linenr,s->offset,
