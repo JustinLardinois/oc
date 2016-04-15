@@ -323,6 +323,7 @@ symbol* parse_assignment(astree* node) {
       error_count++;
    }
 
+   // at some point need to check if struct types are the same
    if(!compatible_types(left,right)) {
       errprintf("%d:%d:%d: attempt to assign value to variable of "
          " disparate type\n",node->filenr,node->linenr,node->offset);
