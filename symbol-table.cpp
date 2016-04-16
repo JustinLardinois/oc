@@ -464,6 +464,21 @@ symbol* parse_new_struct(astree* node) {
    return s;
 }
 
+symbol* parse_new_string(astree* node) {
+   symbol* length = parse_expression(node->children[0]);
+
+   if(!length->attributes[ATTR_int]) {
+      errprintf("%d:%d:%d: string length must be of type int\n",
+         node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_string);
+   s->attributes.set(ATTR_vreg);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -494,6 +509,7 @@ symbol* parse_expression(astree* node) {
       case TOK_NEW:
          return parse_new_struct(node);
       case TOK_NEWSTRING:
+         return parse_new_string(node);
       case TOK_NEWARRAY:
       case TOK_CALL:
       case TOK_IDENT:
