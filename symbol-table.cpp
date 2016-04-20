@@ -505,6 +505,55 @@ symbol* parse_new_array(astree* node) {
    return s;
 }
 
+symbol* parse_call(astree* node) {
+   const string* function_name = node->children[0]->lexinfo;
+   symbol* function = nullptr;
+   if(symbol_stack[0]->count(function_name)) {
+      function = symbol_stack[0]->operator[](function_name);
+      int num_parameters = 0;
+      if(function->parameters != nullptr) {
+         num_parameters = function->parameters->size();
+      }
+      int num_args = node->children.size() - 1;
+      bool compatible = true;
+      if(num_parameters != num_args) compatible = false;
+
+      for(int i = 1; i < num_args+1; ++i) {
+         symbol* arg = parse_expression(node->children[i]);
+         if(i <= num_parameters) {
+            if(!compatible_types(
+               function->parameters->operator[](i-1),arg)) {
+                  compatible = false;
+            }
+         }
+      }
+
+      if(!compatible) {
+         errprintf("%d:%d:%d: arguments to call of function %s "
+            "incompatible with function definition\n",node->filenr,
+            node->linenr,node->offset,function_name);
+         error_count++;
+      }
+   } else {
+      errprintf("%d:%d:%d: function %s is undefined\n",node->filenr,
+         node->linenr,node->offset,function_name);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   if(function != nullptr) {
+      s->attributes[ATTR_void] = function->attributes[ATTR_void];
+      s->attributes[ATTR_bool] = function->attributes[ATTR_bool];
+      s->attributes[ATTR_char] = function->attributes[ATTR_char];
+      s->attributes[ATTR_int] = function->attributes[ATTR_int];
+      s->attributes[ATTR_string] = function->attributes[ATTR_string];
+      s->attributes[ATTR_struct] = function->attributes[ATTR_struct];
+      s->attributes[ATTR_array] = function->attributes[ATTR_array];
+   }
+   s->attributes.set(ATTR_vreg);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -539,6 +588,7 @@ symbol* parse_expression(astree* node) {
       case TOK_NEWARRAY:
          return parse_new_array(node);
       case TOK_CALL:
+         return parse_call(node);
       case TOK_IDENT:
       case TOK_INDEX:
       case TOK_FIELD:
