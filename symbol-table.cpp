@@ -296,11 +296,21 @@ void parse_vardecl(astree* node) {
 
 void parse_while(astree* node) {
    symbol* condition = parse_expression(node->children[0]);
+   if(!condition->attributes[ATTR_bool]) {
+      errprintf("%d:%d:%d: while condition must be of type bool\n",
+         condition->filenr,condition->linenr,condition->offset);
+      error_count++;
+   }
    create_symbol_table(node->children[1]);
 }
 
 void parse_if(astree* node) {
    symbol* condition = parse_expression(node->children[0]);
+   if(!condition->attributes[ATTR_bool]) {
+      errprintf("%d:%d:%d: if condition must be of type bool\n",
+         condition->filenr,condition->linenr,condition->offset);
+      error_count++;
+   }
    create_symbol_table(node->children[1]);
    if(node->symbol == TOK_IFELSE) {
       create_symbol_table(node->children[2]);
