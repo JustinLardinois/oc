@@ -564,6 +564,40 @@ symbol* parse_call(astree* node) {
    return s;
 }
 
+symbol* parse_variable(astree* node) {
+   const string* identifier = node->lexinfo;
+
+   symbol* variable = nullptr;
+   for(auto rit = symbol_stack.crbegin(); rit != symbol_stack.crend();
+      ++rit) {
+
+      symbol_table* t = *rit;
+      if(t->count(identifier)) {
+         variable = t->operator[](identifier);
+         break;
+      }
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(ATTR_variable);
+   s->attributes.set(ATTR_lval);
+
+   if(variable == nullptr) {
+      errprintf("%d:%d:%d: variable %s is not declared in current "
+         "scope\n",node->filenr,node->linenr,node->offset,identifier);
+      error_count++;
+   } else {
+      s->attributes[ATTR_bool]   = variable->attributes[ATTR_bool];
+      s->attributes[ATTR_char]   = variable->attributes[ATTR_char];
+      s->attributes[ATTR_int]    = variable->attributes[ATTR_int];
+      s->attributes[ATTR_string] = variable->attributes[ATTR_string];
+      s->attributes[ATTR_struct] = variable->attributes[ATTR_struct];
+      s->attributes[ATTR_array]  = variable->attributes[ATTR_array];
+   }
+
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -600,6 +634,7 @@ symbol* parse_expression(astree* node) {
       case TOK_CALL:
          return parse_call(node);
       case TOK_IDENT:
+         return parse_variable(node);
       case TOK_INDEX:
       case TOK_FIELD:
       case TOK_INTCON:
