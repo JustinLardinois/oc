@@ -552,13 +552,13 @@ symbol* parse_call(astree* node) {
 
    symbol* s = new symbol(node,current_block);
    if(function != nullptr) {
-      s->attributes[ATTR_void] = function->attributes[ATTR_void];
-      s->attributes[ATTR_bool] = function->attributes[ATTR_bool];
-      s->attributes[ATTR_char] = function->attributes[ATTR_char];
-      s->attributes[ATTR_int] = function->attributes[ATTR_int];
+      s->attributes[ATTR_void]   = function->attributes[ATTR_void];
+      s->attributes[ATTR_bool]   = function->attributes[ATTR_bool];
+      s->attributes[ATTR_char]   = function->attributes[ATTR_char];
+      s->attributes[ATTR_int]    = function->attributes[ATTR_int];
       s->attributes[ATTR_string] = function->attributes[ATTR_string];
       s->attributes[ATTR_struct] = function->attributes[ATTR_struct];
-      s->attributes[ATTR_array] = function->attributes[ATTR_array];
+      s->attributes[ATTR_array]  = function->attributes[ATTR_array];
    }
    s->attributes.set(ATTR_vreg);
    return s;
