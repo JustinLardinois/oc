@@ -479,6 +479,32 @@ symbol* parse_new_string(astree* node) {
    return s;
 }
 
+symbol* parse_new_array(astree* node) {
+   int type = node->children[0]->symbol;
+   if(type == TOK_TYPEID) {
+      const string* struct_name = node->children[0]->lexinfo;
+      if(!struct_table.count(struct_name)) {
+         errprintf("%d:%d:%d: instantiation of array of unknown type "
+            "%s\n",node->filenr,node->linenr,node->offset,struct_name);
+         error_count++;
+      }
+   }
+
+   symbol* length = parse_expression(node->children[1]);
+
+   if(!length->attributes[ATTR_int]) {
+      errprintf("%d:%d:%d: array length must be of type int\n",
+         node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   s->attributes.set(yy_to_enum(type));
+   s->attributes.set(ATTR_array);
+   s->attributes.set(ATTR_vreg);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -511,6 +537,7 @@ symbol* parse_expression(astree* node) {
       case TOK_NEWSTRING:
          return parse_new_string(node);
       case TOK_NEWARRAY:
+         return parse_new_array(node);
       case TOK_CALL:
       case TOK_IDENT:
       case TOK_INDEX:
