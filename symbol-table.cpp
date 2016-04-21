@@ -598,6 +598,39 @@ symbol* parse_variable(astree* node) {
    return s;
 }
 
+symbol* parse_index(astree* node) {
+   symbol* array = parse_expression(node->children[0]);
+
+   if(!(array->attributes[ATTR_array]
+      || array->attributes[ATTR_string])) {
+
+      errprintf("%d:%d:%d: [] operator may only be used with array or "
+         "string types\n",node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* index = parse_expression(node->children[1]);
+
+   if(!index->attributes[ATTR_int]) {
+      errprintf("%d:%d:%d: indexes must be of type int\n",node->filenr,
+         node->linenr,node->offset);
+      error_count++;
+   }
+
+   symbol* s = new symbol(node,current_block);
+   if(array->attributes[ATTR_array]) {
+      s->attributes[ATTR_bool]   = array->attributes[ATTR_bool];
+      s->attributes[ATTR_char]   = array->attributes[ATTR_char];
+      s->attributes[ATTR_int]    = array->attributes[ATTR_int];
+      s->attributes[ATTR_string] = array->attributes[ATTR_string];
+   } else if(array->attributes[ATTR_string]) {
+      s->attributes.set(ATTR_char);
+   }
+   s->attributes.set(ATTR_vaddr);
+   s->attributes.set(ATTR_lval);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -636,6 +669,7 @@ symbol* parse_expression(astree* node) {
       case TOK_IDENT:
          return parse_variable(node);
       case TOK_INDEX:
+         return parse_index(node);
       case '.':
       case TOK_INTCON:
       case TOK_CHARCON:
