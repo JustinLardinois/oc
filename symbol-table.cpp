@@ -636,7 +636,7 @@ symbol* parse_expression(astree* node) {
       case TOK_IDENT:
          return parse_variable(node);
       case TOK_INDEX:
-      case TOK_FIELD:
+      case '.':
       case TOK_INTCON:
       case TOK_CHARCON:
       case TOK_STRINGCON:
