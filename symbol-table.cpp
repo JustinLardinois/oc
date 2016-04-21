@@ -592,6 +592,7 @@ symbol* parse_variable(astree* node) {
       s->attributes[ATTR_int]    = variable->attributes[ATTR_int];
       s->attributes[ATTR_string] = variable->attributes[ATTR_string];
       s->attributes[ATTR_struct] = variable->attributes[ATTR_struct];
+      s->attributes[ATTR_typeid] = variable->attributes[ATTR_typeid];
       s->attributes[ATTR_array]  = variable->attributes[ATTR_array];
    }
 
@@ -623,6 +624,8 @@ symbol* parse_index(astree* node) {
       s->attributes[ATTR_char]   = array->attributes[ATTR_char];
       s->attributes[ATTR_int]    = array->attributes[ATTR_int];
       s->attributes[ATTR_string] = array->attributes[ATTR_string];
+      s->attributes[ATTR_struct] = array->attributes[ATTR_struct];
+      s->attributes[ATTR_typeid] = array->attributes[ATTR_typeid];
    } else if(array->attributes[ATTR_string]) {
       s->attributes.set(ATTR_char);
    }
