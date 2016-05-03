@@ -351,8 +351,17 @@ symbol* parse_assignment(astree* node) {
       error_count++;
    }
 
-   // at some point need to check if struct types are the same
-   if(!compatible_types(left,right)) {
+   if(compatible_types(left,right)) {
+      if(left->struct_name != right->struct_name) {
+         // as in parse_vardecl, neither of these values should be
+         // nullptr at this point
+         errprintf("%d:%d:%d: value of struct type %s assigned to "
+            "variable of struct type %s\n",node->filenr,node->linenr,
+            node->offset,right->struct_name->c_str(),
+            left->struct_name->c_str());
+         error_count++;
+      }
+   } else {
       errprintf("%d:%d:%d: attempt to assign value to variable of "
          " disparate type\n",node->filenr,node->linenr,node->offset);
       error_count++;
