@@ -389,10 +389,11 @@ symbol* parse_eq(astree* node) {
 symbol* parse_cmp(astree* node) {
    symbol* left = parse_expression(node->children[0]);
    symbol* right = parse_expression(node->children[1]);
+   const string* op = node->lexinfo;
 
    if(!left->attributes[ATTR_int] || !right->attributes[ATTR_int]) {
-      errprintf("%d:%d:%d: comparison of disparate types\n",
-         node->filenr,node->linenr,node->offset);
+      errprintf("%d:%d:%d: %s operator may only be used with type "
+         "int\n",op->c_str(),node->filenr,node->linenr,node->offset);
       error_count++;
    }
 
