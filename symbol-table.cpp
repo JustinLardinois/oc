@@ -164,9 +164,15 @@ void parse_function(astree* node) {
       return_type = node->children[0]->children[0]->symbol;
       function_name = node->children[0]->children[1]->lexinfo;
       s->attributes.set(ATTR_array);
+      if(return_type == TOK_TYPEID) {
+         s->struct_name = node->children[0]->children[0]->lexinfo;
+      }
    } else {
       return_type = node->children[0]->symbol;
       function_name = node->children[0]->children[0]->lexinfo;
+      if(return_type == TOK_TYPEID) {
+         s->struct_name = node->children[0]->lexinfo;
+      }
    }
 
    s->attributes.set(yy_to_enum(return_type));
