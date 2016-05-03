@@ -288,7 +288,6 @@ void parse_vardecl(astree* node) {
       emplace = false;
    }
 
-   // at some point need to check if struct types are the same
    symbol* expr = parse_expression(node->children[1]);
    if(compatible_types(s,expr)) {
       if(s->struct_name != expr->struct_name) {
