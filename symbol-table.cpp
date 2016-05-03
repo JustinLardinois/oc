@@ -63,7 +63,7 @@ void parse_struct(astree* node) {
    s->attributes.set(ATTR_struct);
    s->attributes.set(ATTR_typeid);
 
-   const string* struct_name = node->children[0]->lexinfo;
+   s->struct_name = node->children[0]->lexinfo;
 
    // loop over fields
    for(unsigned int i = 1; i < node->children.size(); ++i) {
@@ -97,26 +97,26 @@ void parse_struct(astree* node) {
       if(s->fields->count(ident)) {
          errprintf("%d:%d:%d: multiple fields named %s in struct %s\n",
             field->filenr,field->linenr,field->offset,ident,
-            struct_name);
+            s->struct_name->c_str());
          error_count++;
       } else {
          s->fields->emplace(ident,field);
       }
    }
 
-   if(struct_table.count(struct_name)) {
+   if(struct_table.count(s->struct_name)) {
    // if this struct type has already been declared
-      if(struct_table[struct_name]->fields == nullptr) {
+      if(struct_table[s->struct_name]->fields == nullptr) {
       // if this struct type has been declared but not defined
-         struct_table[struct_name] = s;
+         struct_table[s->struct_name] = s;
       } else { // if this struct has already been defined
          errprintf("%d:%d:%d: multiple definition of struct %s\n",
             node->filenr,node->linenr,node->offset,
-            struct_name->c_str());
+            s->struct_name->c_str());
          error_count++;
       }
    } else { // if this struct type is not yet declared
-      struct_table[struct_name] = s;
+      struct_table[s->struct_name] = s;
    }
 }
 
