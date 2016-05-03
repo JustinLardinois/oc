@@ -264,9 +264,17 @@ void parse_vardecl(astree* node) {
       var_type = node->children[0]->children[0]->symbol;
       var_name = node->children[0]->children[1]->lexinfo;
       s->attributes.set(ATTR_array);
+
+      if(node->children[0]->children[0]->symbol == TOK_TYPEID) {
+         s->struct_name = node->children[0]->children[0]->lexinfo;
+      }
    } else {
       var_type = node->children[0]->symbol;
       var_name = node->children[0]->children[0]->lexinfo;
+
+      if(node->children[0]->symbol == TOK_TYPEID) {
+         s->struct_name = node->children[0]->lexinfo;
+      }
    }
 
    s->attributes.set(yy_to_enum(var_type));
@@ -282,7 +290,18 @@ void parse_vardecl(astree* node) {
 
    // at some point need to check if struct types are the same
    symbol* expr = parse_expression(node->children[1]);
-   if(!compatible_types(s,expr)) {
+   if(compatible_types(s,expr)) {
+      if(s->struct_name != expr->struct_name) {
+      // I don't think it would be possible to get to this point with
+      // either of the struct_names being nullptr, but I guess if it
+      // starts segfaulting I'll check here first.
+         errprintf("%d:%d:%d: struct type %s assigned in declaration "
+            "of variable %s of struct type %s\n",s->filenr,s->linenr,
+            s->offset,expr->struct_name->c_str(),var_name->c_str(),
+            s->struct_name->c_str());
+         error_count++;
+      }
+   } else {
       errprintf("%d:%d:%d: value of incompatible type assigned in "
          "declaration of variable %s\n",s->filenr,s->linenr,s->offset,
          var_name->c_str());
