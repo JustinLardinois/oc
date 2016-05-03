@@ -499,6 +499,7 @@ symbol* parse_new_struct(astree* node) {
    s->attributes.set(ATTR_typeid);
    s->attributes.set(ATTR_vreg);
    s->attributes.set(ATTR_struct);
+   s->struct_name = struct_name;
    return s;
 }
 
@@ -519,8 +520,9 @@ symbol* parse_new_string(astree* node) {
 
 symbol* parse_new_array(astree* node) {
    int type = node->children[0]->symbol;
+   const string* struct_name = nullptr;
    if(type == TOK_TYPEID) {
-      const string* struct_name = node->children[0]->lexinfo;
+      struct_name = node->children[0]->lexinfo;
       if(!struct_table.count(struct_name)) {
          errprintf("%d:%d:%d: instantiation of array of unknown type "
             "%s\n",node->filenr,node->linenr,node->offset,struct_name);
@@ -540,6 +542,7 @@ symbol* parse_new_array(astree* node) {
    s->attributes.set(yy_to_enum(type));
    s->attributes.set(ATTR_array);
    s->attributes.set(ATTR_vreg);
+   s->struct_name = struct_name;
    return s;
 }
 
@@ -587,6 +590,8 @@ symbol* parse_call(astree* node) {
       s->attributes[ATTR_string] = function->attributes[ATTR_string];
       s->attributes[ATTR_struct] = function->attributes[ATTR_struct];
       s->attributes[ATTR_array]  = function->attributes[ATTR_array];
+      s->attributes[ATTR_typeid] = function->attributes[ATTR_typeid];
+      s->struct_name = function->struct_name;
    }
    s->attributes.set(ATTR_vreg);
    return s;
@@ -622,6 +627,7 @@ symbol* parse_variable(astree* node) {
       s->attributes[ATTR_struct] = variable->attributes[ATTR_struct];
       s->attributes[ATTR_typeid] = variable->attributes[ATTR_typeid];
       s->attributes[ATTR_array]  = variable->attributes[ATTR_array];
+      s->struct_name = variable->struct_name;
    }
 
    return s;
