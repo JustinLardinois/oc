@@ -291,9 +291,9 @@ void parse_vardecl(astree* node) {
    symbol* expr = parse_expression(node->children[1]);
    if(compatible_types(s,expr)) {
       if(s->struct_name != expr->struct_name) {
-      // I don't think it would be possible to get to this point with
-      // either of the struct_names being nullptr, but I guess if it
-      // starts segfaulting I'll check here first.
+         // I don't think it would be possible to get to this point
+         // with either of the struct_names being nullptr, but I guess
+         // if it starts segfaulting I'll check here first.
          errprintf("%d:%d:%d: struct type %s assigned in declaration "
             "of variable %s of struct type %s\n",s->filenr,s->linenr,
             s->offset,expr->struct_name->c_str(),var_name->c_str(),
