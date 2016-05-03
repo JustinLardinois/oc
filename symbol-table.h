@@ -27,9 +27,11 @@ struct symbol {
    size_t filenr, linenr, offset;
    size_t blocknr;
    std::vector<symbol*>* parameters;
+   const string* struct_name;
    symbol(astree* node , size_t blocknr) :
       fields(nullptr) , filenr(node->filenr) , linenr(node->linenr) ,
-      offset(node->offset) , blocknr(blocknr) , parameters(nullptr) {}
+      offset(node->offset) , blocknr(blocknr) , parameters(nullptr) ,
+      struct_name(nullptr) {}
 };
 
 extern int error_count;
