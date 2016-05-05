@@ -723,6 +723,31 @@ symbol* parse_field(astree* node) {
    return s;
 }
 
+symbol* parse_constant(astree* node) {
+   symbol* s = new symbol(node,current_block);
+
+   switch(node->symbol) {
+      case TOK_INTCON:
+         s->attributes.set(ATTR_int);
+         break;
+      case TOK_CHARCON:
+         s->attributes.set(ATTR_char);
+         break;
+      case TOK_STRINGCON:
+         s->attributes.set(ATTR_string);
+         break;
+      case TOK_FALSE:
+      case TOK_TRUE:
+         s->attributes.set(ATTR_bool);
+         break;
+      case TOK_NULL:
+         s->attributes.set(ATTR_null);
+   }
+
+   s->attributes.set(ATTR_const);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -770,7 +795,7 @@ symbol* parse_expression(astree* node) {
       case TOK_FALSE:
       case TOK_TRUE:
       case TOK_NULL:
-         break;
+         return parse_constant(node);
    }
    return nullptr;
 }
