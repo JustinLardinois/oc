@@ -143,7 +143,8 @@ bool matching_parameters(symbol* x , symbol* y) {
               xattrs[ATTR_int] == yattrs[ATTR_int] &&
               xattrs[ATTR_string] == yattrs[ATTR_string] &&
               xattrs[ATTR_array] == yattrs[ATTR_array] &&
-              xattrs[ATTR_typeid] == yattrs[ATTR_typeid])) {
+              xattrs[ATTR_typeid] == yattrs[ATTR_typeid] &&
+              x->struct_name == y->struct_name)) {
             return false;
          }
       }
@@ -200,14 +201,17 @@ void parse_function(astree* node) {
          p->attributes.set(ATTR_lval);
          int param_type;
          const string* param_name;
+         const string* type_name;
 
          if(params[i]->symbol == TOK_ARRAY) {
             param_type = params[i]->children[0]->symbol;
             param_name = params[i]->children[1]->lexinfo;
+            type_name  = params[i]->children[0]->lexinfo;
             p->attributes.set(ATTR_array);
          } else {
             param_type = params[i]->symbol;
             param_name = params[i]->children[0]->lexinfo;
+            type_name  = params[i]->lexinfo;
          }
 
          if(param_type == TOK_VOID) {
@@ -215,6 +219,8 @@ void parse_function(astree* node) {
                "type void\n",p->filenr,p->linenr,p->offset);
             error_count++;
          }
+
+         if(param_type == TOK_TYPEID) p->struct_name = type_name;
 
          p->attributes.set(yy_to_enum(param_type));
          s->parameters->push_back(p);
