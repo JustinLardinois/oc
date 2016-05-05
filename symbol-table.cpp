@@ -674,6 +674,44 @@ symbol* parse_index(astree* node) {
    return s;
 }
 
+symbol* parse_field(astree* node) {
+   symbol* op = parse_expression(node->children[0]);
+   const string* field_name = node->children[1]->lexinfo;
+   symbol* s = new symbol(node,current_block);
+
+   if(op->attributes[ATTR_typeid]) {
+      if(struct_table.count(op->struct_name)) {
+      // technically it's an error if this struct type doesn't exist,
+      // but that will be caught during expression parsing
+         symbol* structure = struct_table[op->struct_name];
+         if(structure->fields->count(field_name)) {
+            symbol* field = structure->fields->operator[](field_name);
+            s->attributes[ATTR_bool]   = field->attributes[ATTR_bool];
+            s->attributes[ATTR_char]   = field->attributes[ATTR_char];
+            s->attributes[ATTR_int]    = field->attributes[ATTR_int];
+            s->attributes[ATTR_string] = field->attributes[ATTR_string];
+            s->attributes[ATTR_struct] = field->attributes[ATTR_struct];
+            s->attributes[ATTR_array]  = field->attributes[ATTR_array];
+            s->attributes[ATTR_typeid] = field->attributes[ATTR_typeid];
+            s->struct_name = field->struct_name;
+         } else {
+            errprintf("%d:%d:%d: struct type %s does not have field "
+               "named %s\n",node->filenr,node->linenr,node->offset,
+               op->struct_name->c_str(),field_name->c_str());
+            error_count++;
+         }
+      }
+   } else {
+      errprintf("%d:%d:%d: . operator may only be used with struct "
+         "types\n",node->filenr,node->linenr,node->offset);
+      error_count++;
+   }
+
+   s->attributes.set(ATTR_vaddr);
+   s->attributes.set(ATTR_lval);
+   return s;
+}
+
 symbol* parse_expression(astree* node) {
    switch(node->symbol) {
       case '=':
@@ -714,6 +752,7 @@ symbol* parse_expression(astree* node) {
       case TOK_INDEX:
          return parse_index(node);
       case '.':
+         return parse_field(node);
       case TOK_INTCON:
       case TOK_CHARCON:
       case TOK_STRINGCON:
