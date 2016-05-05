@@ -73,16 +73,19 @@ void parse_struct(astree* node) {
       int token_code;
       symbol* field;
       const string* ident;
+      const string* type_name;
 
       if(child->symbol == TOK_ARRAY) {
          token_code = child->children[0]->symbol;
          field = new symbol(child->children[1],0);
          field->attributes.set(ATTR_array);
          ident = child->children[1]->lexinfo;
+         type_name = child->children[0]->lexinfo;
       } else {
          token_code = child->symbol;
          field = new symbol(child->children[0],0);
          ident = child->children[0]->lexinfo;
+         type_name = child->lexinfo;
       }
 
       if(token_code == TOK_VOID) {
@@ -90,6 +93,8 @@ void parse_struct(astree* node) {
             field->filenr,field->linenr,field->offset);
          error_count++;
       }
+
+      if(token_code == TOK_TYPEID) field->struct_name = type_name;
 
       field->attributes.set(yy_to_enum(token_code));
       field->attributes.set(ATTR_field);
