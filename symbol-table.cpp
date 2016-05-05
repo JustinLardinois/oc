@@ -296,10 +296,9 @@ void parse_vardecl(astree* node) {
 
    symbol* expr = parse_expression(node->children[1]);
    if(compatible_types(s,expr)) {
-      if(s->struct_name != expr->struct_name) {
-         // I don't think it would be possible to get to this point
-         // with either of the struct_names being nullptr, but I guess
-         // if it starts segfaulting I'll check here first.
+      if(s->struct_name != nullptr && expr->struct_name != nullptr
+         && (s->struct_name != expr->struct_name)) {
+
          errprintf("%d:%d:%d: struct type %s assigned in declaration "
             "of variable %s of struct type %s\n",s->filenr,s->linenr,
             s->offset,expr->struct_name->c_str(),var_name->c_str(),
@@ -358,9 +357,9 @@ symbol* parse_assignment(astree* node) {
    }
 
    if(compatible_types(left,right)) {
-      if(left->struct_name != right->struct_name) {
-         // as in parse_vardecl, neither of these values should be
-         // nullptr at this point
+      if(left->struct_name != nullptr && right->struct_name != nullptr
+         && (left->struct_name != right->struct_name)) {
+
          errprintf("%d:%d:%d: value of struct type %s assigned to "
             "variable of struct type %s\n",node->filenr,node->linenr,
             node->offset,right->struct_name->c_str(),
@@ -666,6 +665,7 @@ symbol* parse_index(astree* node) {
       s->attributes[ATTR_string] = array->attributes[ATTR_string];
       s->attributes[ATTR_struct] = array->attributes[ATTR_struct];
       s->attributes[ATTR_typeid] = array->attributes[ATTR_typeid];
+      s->struct_name = array->struct_name;
    } else if(array->attributes[ATTR_string]) {
       s->attributes.set(ATTR_char);
    }
