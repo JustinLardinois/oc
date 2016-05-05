@@ -134,7 +134,7 @@ bool matching_parameters(symbol* x , symbol* y) {
    } else if(x->parameters->size() != y->parameters->size()) {
       return false;
    } else {
-      for(unsigned int i = 0; i < x->parameters->size(); i++) {
+      for(unsigned int i = 0; i < x->parameters->size(); ++i) {
          attr_bitset xattrs = x->parameters->operator[](i)->attributes;
          attr_bitset yattrs = y->parameters->operator[](i)->attributes;
          if(!(xattrs[ATTR_void] == yattrs[ATTR_void] &&
