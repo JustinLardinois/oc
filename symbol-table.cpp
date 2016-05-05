@@ -9,7 +9,7 @@ std::vector<symbol_table*> symbol_stack;
 symbol_table struct_table;
 
 // to be referenced during block traversal
-symbol* current_function = nullptr;
+const string* current_function = nullptr;
 
 int error_count = 0;
 
@@ -263,7 +263,7 @@ void parse_function(astree* node) {
          next_block++;
       }
       symbol_stack.push_back(block);
-      current_function = s;
+      current_function = function_name;
       parse_block(node->children[2]);
       current_function = nullptr;
       symbol_stack.pop_back();
@@ -348,6 +348,37 @@ void parse_if(astree* node) {
    create_symbol_table(node->children[1]);
    if(node->symbol == TOK_IFELSE) {
       create_symbol_table(node->children[2]);
+   }
+}
+
+void parse_return(astree* node) {
+   bool returnvoid = node->symbol == TOK_RETURNVOID;
+
+   symbol* function = nullptr;
+   if(current_function != nullptr) {
+      function = symbol_stack[0]->operator[](current_function);
+   }
+
+   symbol* value = nullptr;
+   if(returnvoid) value = parse_expression(node->children[0]);
+
+   if(current_function == nullptr || function->attributes[ATTR_void]) {
+      if(!returnvoid) {
+         errprintf("%d:%d:%d: value may not be returned from void "
+            " function\n",node->filenr,node->linenr,node->offset);
+         error_count++;
+      }
+   } else {
+      if(returnvoid) {
+         errprintf("%d:%d:%d: non-void function must have return value"
+            "\n",node->filenr,node->linenr,node->offset);
+         error_count++;
+      } else if(!compatible_types(function,value)) {
+         errprintf("%d:%d:%d: return value of function %s is of "
+            " disparate type\n",node->filenr,node->linenr,node->offset,
+            current_function->c_str());
+         error_count++;
+      }
    }
 }
 
@@ -829,7 +860,7 @@ void create_symbol_table(astree* node) {
          return parse_if(node);
       case TOK_RETURN:
       case TOK_RETURNVOID:
-         return;
+         return parse_return(node);
       default:
          parse_expression(node);
          return;
