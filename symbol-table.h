@@ -1,6 +1,9 @@
 // Justin Lardinois jlardino@ucsc.edu
 // symbol-table.h - definitions for symbol table ADT
 
+#ifndef __SYMBOL_TABLE_H__
+#define __SYMBOL_TABLE_H__
+
 #include <bitset>
 #include <string>
 #include <unordered_map>
@@ -37,3 +40,5 @@ struct symbol {
 extern int error_count;
 
 void create_symbol_table(astree* node);
+
+#endif
