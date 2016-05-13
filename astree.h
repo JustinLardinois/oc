@@ -28,6 +28,7 @@ struct astree {
    const string* lexinfo;    // pointer to lexical information
    vector<astree*> children; // children of this n-way node
    attr_bitset attributes;
+   const string* struct_name;
    astree (int symbol, int filenr, int linenr,
            int offset, const char* clexinfo);
 };

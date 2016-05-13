@@ -16,7 +16,8 @@
 astree::astree (int symbol, int filenr, int linenr,
                 int offset, const char* clexinfo):
         symbol (symbol), filenr (filenr), linenr (linenr),
-        offset (offset), lexinfo (intern_stringset (clexinfo)) {
+        offset (offset), lexinfo (intern_stringset (clexinfo)),
+        struct_name (nullptr) {
    DEBUGF ('f', "astree %p->{%d:%d.%d: %s: \"%s\"}\n",
            (void*) this, filenr, linenr, offset,
            get_yytname (symbol), lexinfo->c_str());

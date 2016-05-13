@@ -63,7 +63,7 @@ void parse_struct(astree* node) {
    s->attributes.set(ATTR_struct);
    s->attributes.set(ATTR_typeid);
 
-   s->struct_name = node->children[0]->lexinfo;
+   node->struct_name = s->struct_name = node->children[0]->lexinfo;
 
    // loop over fields
    for(unsigned int i = 1; i < node->children.size(); ++i) {
@@ -94,7 +94,9 @@ void parse_struct(astree* node) {
          error_count++;
       }
 
-      if(token_code == TOK_TYPEID) field->struct_name = type_name;
+      if(token_code == TOK_TYPEID) {
+         child->struct_name = field->struct_name = type_name;
+      }
 
       field->attributes.set(yy_to_enum(token_code));
       field->attributes.set(ATTR_field);
@@ -172,12 +174,14 @@ void parse_function(astree* node) {
       s->attributes.set(ATTR_array);
       if(return_type == TOK_TYPEID) {
          s->struct_name = node->children[0]->children[0]->lexinfo;
+         node->struct_name = s->struct_name;
       }
    } else {
       return_type = node->children[0]->symbol;
       function_name = node->children[0]->children[0]->lexinfo;
       if(return_type == TOK_TYPEID) {
          s->struct_name = node->children[0]->lexinfo;
+         node->struct_name = s->struct_name;
       }
    }
 
@@ -220,7 +224,9 @@ void parse_function(astree* node) {
             error_count++;
          }
 
-         if(param_type == TOK_TYPEID) p->struct_name = type_name;
+         if(param_type == TOK_TYPEID) {
+            params[i]->struct_name = p->struct_name = type_name;
+         }
 
          p->attributes.set(yy_to_enum(param_type));
          s->parameters->push_back(p);
@@ -284,6 +290,7 @@ void parse_vardecl(astree* node) {
 
       if(node->children[0]->children[0]->symbol == TOK_TYPEID) {
          s->struct_name = node->children[0]->children[0]->lexinfo;
+         node->struct_name = s->struct_name;
       }
    } else {
       var_type = node->children[0]->symbol;
@@ -291,6 +298,7 @@ void parse_vardecl(astree* node) {
 
       if(node->children[0]->symbol == TOK_TYPEID) {
          s->struct_name = node->children[0]->lexinfo;
+         node->struct_name = s->struct_name;
       }
    }
 
@@ -546,7 +554,7 @@ symbol* parse_new_struct(astree* node) {
    s->attributes.set(ATTR_typeid);
    s->attributes.set(ATTR_vreg);
    s->attributes.set(ATTR_struct);
-   s->struct_name = struct_name;
+   node->struct_name = s->struct_name = struct_name;
    return s;
 }
 
@@ -589,7 +597,7 @@ symbol* parse_new_array(astree* node) {
    s->attributes.set(yy_to_enum(type));
    s->attributes.set(ATTR_array);
    s->attributes.set(ATTR_vreg);
-   s->struct_name = struct_name;
+   node->struct_name = s->struct_name = struct_name;
    return s;
 }
 
@@ -638,7 +646,7 @@ symbol* parse_call(astree* node) {
       s->attributes[ATTR_struct] = function->attributes[ATTR_struct];
       s->attributes[ATTR_array]  = function->attributes[ATTR_array];
       s->attributes[ATTR_typeid] = function->attributes[ATTR_typeid];
-      s->struct_name = function->struct_name;
+      node->struct_name = s->struct_name = function->struct_name;
    }
    s->attributes.set(ATTR_vreg);
    return s;
@@ -674,7 +682,7 @@ symbol* parse_variable(astree* node) {
       s->attributes[ATTR_struct] = variable->attributes[ATTR_struct];
       s->attributes[ATTR_typeid] = variable->attributes[ATTR_typeid];
       s->attributes[ATTR_array]  = variable->attributes[ATTR_array];
-      s->struct_name = variable->struct_name;
+      node->struct_name = s->struct_name = variable->struct_name;
    }
 
    return s;
@@ -707,7 +715,7 @@ symbol* parse_index(astree* node) {
       s->attributes[ATTR_string] = array->attributes[ATTR_string];
       s->attributes[ATTR_struct] = array->attributes[ATTR_struct];
       s->attributes[ATTR_typeid] = array->attributes[ATTR_typeid];
-      s->struct_name = array->struct_name;
+      node->struct_name = s->struct_name = array->struct_name;
    } else if(array->attributes[ATTR_string]) {
       s->attributes.set(ATTR_char);
    }
@@ -735,7 +743,7 @@ symbol* parse_field(astree* node) {
             s->attributes[ATTR_struct] = field->attributes[ATTR_struct];
             s->attributes[ATTR_array]  = field->attributes[ATTR_array];
             s->attributes[ATTR_typeid] = field->attributes[ATTR_typeid];
-            s->struct_name = field->struct_name;
+            node->struct_name = s->struct_name = field->struct_name;
          } else {
             errprintf("%d:%d:%d: struct type %s does not have field "
                "named %s\n",node->filenr,node->linenr,node->offset,
