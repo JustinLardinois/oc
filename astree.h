@@ -25,6 +25,7 @@ struct astree {
    size_t filenr;            // index into filename stack
    size_t linenr;            // line number from source code
    size_t offset;            // offset of token with current line
+   size_t blocknr;
    const string* lexinfo;    // pointer to lexical information
    vector<astree*> children; // children of this n-way node
    attr_bitset attributes;

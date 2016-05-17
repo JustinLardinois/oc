@@ -18,7 +18,7 @@ struct symbol {
    attr_bitset& attributes;
    symbol_table* fields;
    size_t filenr, linenr, offset;
-   size_t blocknr;
+   size_t& blocknr;
    std::vector<symbol*>* parameters;
    const string* struct_name;
    symbol(astree* node , size_t blocknr) :
