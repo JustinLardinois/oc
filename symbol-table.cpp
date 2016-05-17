@@ -8,6 +8,11 @@
 std::vector<symbol_table*> symbol_stack;
 symbol_table struct_table;
 
+symbol::~symbol() {
+   delete this->fields;
+   delete this->parameters;
+}
+
 // to be referenced during block traversal
 const string* current_function = nullptr;
 

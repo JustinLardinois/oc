@@ -26,6 +26,7 @@ struct symbol {
       filenr(node->filenr) , linenr(node->linenr) ,
       offset(node->offset) , blocknr(blocknr) , parameters(nullptr) ,
       struct_name(nullptr) {}
+   ~symbol();
 };
 
 extern int error_count;
