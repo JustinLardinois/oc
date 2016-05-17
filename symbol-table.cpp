@@ -111,6 +111,7 @@ void parse_struct(astree* node) {
             field->filenr,field->linenr,field->offset,ident,
             s->struct_name->c_str());
          error_count++;
+         delete field;
       } else {
          s->fields->emplace(ident,field);
       }
@@ -248,6 +249,7 @@ void parse_function(astree* node) {
             node->filenr,node->linenr,node->offset,
             function_name->c_str());
          error_count++;
+         delete s;
          return;
       } else { // if function declared but not defined
          if(matching_parameters(declaration,s)) {
@@ -258,6 +260,7 @@ void parse_function(astree* node) {
                node->filenr,node->linenr,node->offset,
                function_name->c_str());
             error_count++;
+            delete s;
             return;
          }
       }
@@ -339,6 +342,8 @@ void parse_vardecl(astree* node) {
    if(emplace) {
       symbol_stack.back()->emplace(var_name,s);
    }
+
+   delete expr;
 }
 
 void parse_while(astree* node) {
@@ -349,6 +354,7 @@ void parse_while(astree* node) {
       error_count++;
    }
    create_symbol_table(node->children[1]);
+   delete condition;
 }
 
 void parse_if(astree* node) {
@@ -362,6 +368,7 @@ void parse_if(astree* node) {
    if(node->symbol == TOK_IFELSE) {
       create_symbol_table(node->children[2]);
    }
+   delete condition;
 }
 
 void parse_return(astree* node) {
@@ -393,6 +400,8 @@ void parse_return(astree* node) {
          error_count++;
       }
    }
+
+   delete value;
 }
 
 symbol* parse_assignment(astree* node) {
@@ -427,6 +436,8 @@ symbol* parse_assignment(astree* node) {
       error_count++;
    }
 
+   delete left;
+   delete right;
    return s;
 }
 
@@ -443,6 +454,8 @@ symbol* parse_eq(astree* node) {
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_bool);
    s->attributes.set(ATTR_vreg);
+   delete left;
+   delete right;
    return s;
 }
 
@@ -460,6 +473,8 @@ symbol* parse_cmp(astree* node) {
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_bool);
    s->attributes.set(ATTR_vreg);
+   delete left;
+   delete right;
    return s;
 }
 
@@ -476,6 +491,8 @@ symbol* parse_math(astree* node) {
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_int);
    s->attributes.set(ATTR_vreg);
+   delete left;
+   delete right;
    return s;
 }
 
@@ -491,6 +508,7 @@ symbol* parse_sign(astree* node) {
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_int);
    s->attributes.set(ATTR_vreg);
+   delete op;
    return s;
 }
 
@@ -506,6 +524,7 @@ symbol* parse_bang(astree* node) {
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_bool);
    s->attributes.set(ATTR_vreg);
+   delete op;
    return s;
 }
 
@@ -521,6 +540,7 @@ symbol* parse_ord(astree* node) {
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_int);
    s->attributes.set(ATTR_vreg);
+   delete op;
    return s;
 }
 
@@ -536,6 +556,7 @@ symbol* parse_chr(astree* node) {
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_char);
    s->attributes.set(ATTR_vreg);
+   delete op;
    return s;
 }
 
@@ -575,6 +596,7 @@ symbol* parse_new_string(astree* node) {
    symbol* s = new symbol(node,current_block);
    s->attributes.set(ATTR_string);
    s->attributes.set(ATTR_vreg);
+   delete length;
    return s;
 }
 
@@ -603,6 +625,7 @@ symbol* parse_new_array(astree* node) {
    s->attributes.set(ATTR_array);
    s->attributes.set(ATTR_vreg);
    node->struct_name = s->struct_name = struct_name;
+   delete length;
    return s;
 }
 
@@ -627,6 +650,7 @@ symbol* parse_call(astree* node) {
                   compatible = false;
             }
          }
+         delete arg;
       }
 
       if(!compatible) {
@@ -726,6 +750,8 @@ symbol* parse_index(astree* node) {
    }
    s->attributes.set(ATTR_vaddr);
    s->attributes.set(ATTR_lval);
+   delete array;
+   delete index;
    return s;
 }
 
@@ -764,6 +790,7 @@ symbol* parse_field(astree* node) {
 
    s->attributes.set(ATTR_vaddr);
    s->attributes.set(ATTR_lval);
+   delete op;
    return s;
 }
 
