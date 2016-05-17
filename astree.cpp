@@ -63,8 +63,10 @@ astree* adoptf(astree* identdecl , astree* params , astree* block) {
 static void dump_node (FILE* outfile, astree* node) {
    const char *tname = get_yytname (node->symbol);
    if (strstr (tname, "TOK_") == tname) tname += 4;
-   fprintf(outfile,"%s \"%s\" %d.%d.%d",tname,node->lexinfo->c_str(),
-      (int)node->filenr,(int)node->linenr,(int)node->offset);
+   fprintf(outfile,"%s \"%s\" (%d.%d.%d) {%d}%s",tname,
+      node->lexinfo->c_str(),(int)node->filenr,(int)node->linenr,
+      (int)node->offset,(int)node->blocknr,
+      stringify_attributes(node->attributes,node->struct_name).c_str());
 }
 
 static void dump_astree_rec (FILE* outfile, astree* root,
