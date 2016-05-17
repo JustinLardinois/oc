@@ -57,5 +57,7 @@ void free_ast (astree* tree);
 // Recursively free two astrees.
 void free_ast2 (astree* tree1, astree* tree2);
 
+string stringify_attributes(attr_bitset& , const string* struct_name);
+
 RCSH("$Id: astree.h,v 1.4 2015-04-09 19:31:47-07 - - $")
 #endif

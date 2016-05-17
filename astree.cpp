@@ -115,5 +115,59 @@ void free_ast2 (astree* tree1, astree* tree2) {
    free_ast (tree2);
 }
 
+string stringify_enum(int attr, const string* struct_name) {
+   switch(attr) {
+      case ATTR_void:
+         return "void";
+      case ATTR_bool:
+         return "bool";
+      case ATTR_char:
+         return "char";
+      case ATTR_int:
+         return "int";
+      case ATTR_null:
+         return "null";
+      case ATTR_string:
+         return "string";
+      case ATTR_struct:
+         return "struct \"" + *struct_name + "\"";
+      case ATTR_array:
+         return "array";
+      case ATTR_function:
+         return "function";
+      case ATTR_prototype:
+         return "prototype";
+      case ATTR_variable:
+         return "variable";
+      case ATTR_field:
+         return "field";
+      case ATTR_typeid:
+         return "typeid";
+      case ATTR_param:
+         return "param";
+      case ATTR_lval:
+         return "lval";
+      case ATTR_const:
+         return "const";
+      case ATTR_vreg:
+         return "vreg";
+      case ATTR_vaddr:
+         return "vaddr";
+   }
+   return ""; // shut up g++
+}
+
+string stringify_attributes(attr_bitset& attributes,
+   const string* struct_name) {
+
+   string a = "";
+
+   for(int i = 0; i < ATTR_bitset_size; ++i) {
+      if(attributes[i]) a += " " + stringify_enum(i,struct_name);
+   }
+
+   return a;
+}
+
 RCSC("$Id: astree.cpp,v 1.6 2015-04-09 19:31:47-07 - - $")
 
