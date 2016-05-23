@@ -30,6 +30,9 @@ struct astree {
    vector<astree*> children; // children of this n-way node
    attr_bitset attributes;
    const string* struct_name;
+   size_t dfilenr;           // these fields are for identifiers to
+   size_t dlinenr;           // store where they were declared
+   size_t doffset;
    astree (int symbol, int filenr, int linenr,
            int offset, const char* clexinfo);
 };
