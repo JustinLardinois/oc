@@ -711,7 +711,11 @@ symbol* parse_variable(astree* node) {
       s->attributes[ATTR_struct] = variable->attributes[ATTR_struct];
       s->attributes[ATTR_typeid] = variable->attributes[ATTR_typeid];
       s->attributes[ATTR_array]  = variable->attributes[ATTR_array];
+
       node->struct_name = s->struct_name = variable->struct_name;
+      node->dfilenr = variable->filenr;
+      node->dlinenr = variable->linenr;
+      node->doffset = variable->offset;
    }
 
    return s;
