@@ -50,13 +50,13 @@ ${LCPPGEN}: ${LSOURCE}
 	grep -v -e "^  " -e "^flex version" || true
 
 ${LCPPGENO}: ${LCPPGEN}
-	${GPP} -c $<
+	${GPP} -w -c $<
 
 ${YCPPGEN} ${YHGEN}: ${YSOURCE}
 	bison --defines=${YHGEN} --output=${YCPPGEN} ${YSOURCE}
 
 ${YCPPGENO}: ${YCPPGEN} ${YHGEN}
-	${GPP} -c $<
+	${GPP} -w -c $<
 
 clean:
 	rm ${OBJECTS} ${GEN} *.output
