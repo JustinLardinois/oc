@@ -380,7 +380,7 @@ void parse_return(astree* node) {
    }
 
    symbol* value = nullptr;
-   if(returnvoid) value = parse_expression(node->children[0]);
+   if(!returnvoid) value = parse_expression(node->children[0]);
 
    if(current_function == nullptr || function->attributes[ATTR_void]) {
       if(!returnvoid) {
@@ -464,9 +464,12 @@ symbol* parse_cmp(astree* node) {
    symbol* right = parse_expression(node->children[1]);
    const string* op = node->lexinfo;
 
-   if(!left->attributes[ATTR_int] || !right->attributes[ATTR_int]) {
+   if(!((left->attributes[ATTR_bool] && right->attributes[ATTR_bool])
+      || (left->attributes[ATTR_char] && right->attributes[ATTR_char])
+      || (left->attributes[ATTR_int] && right->attributes[ATTR_int])))
+   {
       errprintf("%d:%d:%d: %s operator may only be used with type "
-         "int\n",op->c_str(),node->filenr,node->linenr,node->offset);
+         "int\n",node->filenr,node->linenr,node->offset,op->c_str());
       error_count++;
    }
 
@@ -661,7 +664,7 @@ symbol* parse_call(astree* node) {
       }
    } else {
       errprintf("%d:%d:%d: function %s is undefined\n",node->filenr,
-         node->linenr,node->offset,function_name);
+         node->linenr,node->offset,function_name->c_str());
       error_count++;
    }
 
