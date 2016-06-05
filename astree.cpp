@@ -163,7 +163,7 @@ string stringify_enum(int attr, const string* struct_name) {
    return ""; // shut up g++
 }
 
-string stringify_attributes(attr_bitset& attributes,
+string stringify_attributes(const attr_bitset& attributes,
    const string* struct_name) {
 
    string a = "";
