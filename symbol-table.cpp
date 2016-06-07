@@ -8,6 +8,15 @@
 std::vector<symbol_table*> symbol_stack;
 symbol_table struct_table;
 
+symbol::symbol(astree* node , size_t blocknr) :
+   attributes(&(node->attributes)), fields(nullptr) ,
+   filenr(node->filenr) , linenr(node->linenr) , offset(node->offset) ,
+   parameters(nullptr) , struct_name(nullptr) {
+
+   node->blocknr = blocknr;
+}
+
+
 symbol::~symbol() {
    delete this->fields;
    delete this->parameters;
@@ -48,25 +57,38 @@ int yy_to_enum(int type) {
 // kinda turned into a mess because reference types can be null
 bool compatible_types(symbol* x , symbol* y){
    return
-      x->attributes[ATTR_void] == y->attributes[ATTR_void] &&
-      x->attributes[ATTR_bool] == y->attributes[ATTR_bool] &&
-      x->attributes[ATTR_char] == y->attributes[ATTR_char] &&
-      x->attributes[ATTR_int]  == y->attributes[ATTR_int]  &&
-      x->attributes[ATTR_array] == y->attributes[ATTR_array] &&
-      (x->attributes[ATTR_string] == y->attributes[ATTR_string] ||
-      (x->attributes[ATTR_string] && y->attributes[ATTR_null]) ||
-      (x->attributes[ATTR_null] && y->attributes[ATTR_null]) ||
-      (x->attributes[ATTR_null] && y->attributes[ATTR_null])) &&
-      (x->attributes[ATTR_typeid] == y->attributes[ATTR_typeid] ||
-      (x->attributes[ATTR_typeid] && y->attributes[ATTR_null]) ||
-      (x->attributes[ATTR_null] && y->attributes[ATTR_typeid]) ||
-      (x->attributes[ATTR_null] && y->attributes[ATTR_null]));
+      x->attributes->operator[](ATTR_void)
+         == y->attributes->operator[](ATTR_void) &&
+      x->attributes->operator[](ATTR_bool)
+         == y->attributes->operator[](ATTR_bool) &&
+      x->attributes->operator[](ATTR_char)
+         == y->attributes->operator[](ATTR_char) &&
+      x->attributes->operator[](ATTR_int)
+         == y->attributes->operator[](ATTR_int) &&
+      x->attributes->operator[](ATTR_array)
+         == y->attributes->operator[](ATTR_array) &&
+      (x->attributes->operator[](ATTR_string)
+         == y->attributes->operator[](ATTR_string) ||
+      (x->attributes->operator[](ATTR_string) &&
+         y->attributes->operator[](ATTR_null)) ||
+      (x->attributes->operator[](ATTR_null) &&
+         y->attributes->operator[](ATTR_null)) ||
+      (x->attributes->operator[](ATTR_null) &&
+         y->attributes->operator[](ATTR_null))) &&
+      (x->attributes->operator[](ATTR_typeid)
+         == y->attributes->operator[](ATTR_typeid) ||
+      (x->attributes->operator[](ATTR_typeid) &&
+         y->attributes->operator[](ATTR_null)) ||
+      (x->attributes->operator[](ATTR_null) &&
+         y->attributes->operator[](ATTR_typeid)) ||
+      (x->attributes->operator[](ATTR_null) &&
+         y->attributes->operator[](ATTR_null)));
 }
 
 void parse_struct(astree* node) {
    symbol* s = new symbol(node,0);
-   s->attributes.set(ATTR_struct);
-   s->attributes.set(ATTR_typeid);
+   s->attributes->set(ATTR_struct);
+   s->attributes->set(ATTR_typeid);
 
    node->struct_name = s->struct_name = node->children[0]->lexinfo;
 
@@ -83,7 +105,7 @@ void parse_struct(astree* node) {
       if(child->symbol == TOK_ARRAY) {
          token_code = child->children[0]->symbol;
          field = new symbol(child->children[1],0);
-         field->attributes.set(ATTR_array);
+         field->attributes->set(ATTR_array);
          ident = child->children[1]->lexinfo;
          type_name = child->children[0]->lexinfo;
       } else {
@@ -103,8 +125,8 @@ void parse_struct(astree* node) {
          child->struct_name = field->struct_name = type_name;
       }
 
-      field->attributes.set(yy_to_enum(token_code));
-      field->attributes.set(ATTR_field);
+      field->attributes->set(yy_to_enum(token_code));
+      field->attributes->set(ATTR_field);
 
       if(s->fields->count(ident)) {
          errprintf("%d:%d:%d: multiple fields named %s in struct %s\n",
@@ -143,8 +165,10 @@ bool matching_parameters(symbol* x , symbol* y) {
       return false;
    } else {
       for(unsigned int i = 0; i < x->parameters->size(); ++i) {
-         attr_bitset xattrs = x->parameters->operator[](i)->attributes;
-         attr_bitset yattrs = y->parameters->operator[](i)->attributes;
+         attr_bitset xattrs =
+            *(x->parameters->operator[](i)->attributes);
+         attr_bitset yattrs =
+            *(y->parameters->operator[](i)->attributes);
          if(!(xattrs[ATTR_void] == yattrs[ATTR_void] &&
               xattrs[ATTR_bool] == yattrs[ATTR_bool] &&
               xattrs[ATTR_char] == yattrs[ATTR_char] &&
@@ -177,7 +201,7 @@ void parse_function(astree* node) {
    if(node->children[0]->symbol == TOK_ARRAY) {
       return_type = node->children[0]->children[0]->symbol;
       function_name = node->children[0]->children[1]->lexinfo;
-      s->attributes.set(ATTR_array);
+      s->attributes->set(ATTR_array);
       if(return_type == TOK_TYPEID) {
          s->struct_name = node->children[0]->children[0]->lexinfo;
          node->struct_name = s->struct_name;
@@ -191,7 +215,7 @@ void parse_function(astree* node) {
       }
    }
 
-   s->attributes.set(yy_to_enum(return_type));
+   s->attributes->set(yy_to_enum(return_type));
 
    // block to be potentially populated with
    symbol_table* block = nullptr;
@@ -206,9 +230,9 @@ void parse_function(astree* node) {
 
       for(unsigned int i = 0; i < params.size(); ++i) {
          symbol* p = new symbol(params[i],current_block);
-         p->attributes.set(ATTR_param);
-         p->attributes.set(ATTR_variable);
-         p->attributes.set(ATTR_lval);
+         p->attributes->set(ATTR_param);
+         p->attributes->set(ATTR_variable);
+         p->attributes->set(ATTR_lval);
          int param_type;
          const string* param_name;
          const string* type_name;
@@ -217,7 +241,7 @@ void parse_function(astree* node) {
             param_type = params[i]->children[0]->symbol;
             param_name = params[i]->children[1]->lexinfo;
             type_name  = params[i]->children[0]->lexinfo;
-            p->attributes.set(ATTR_array);
+            p->attributes->set(ATTR_array);
          } else {
             param_type = params[i]->symbol;
             param_name = params[i]->children[0]->lexinfo;
@@ -234,7 +258,7 @@ void parse_function(astree* node) {
             params[i]->struct_name = p->struct_name = type_name;
          }
 
-         p->attributes.set(yy_to_enum(param_type));
+         p->attributes->set(yy_to_enum(param_type));
          s->parameters->push_back(p);
          block->emplace(param_name,p);
       }
@@ -243,7 +267,7 @@ void parse_function(astree* node) {
    if(symbol_stack[0]->count(function_name)){
    // if function already declared
       symbol* declaration = symbol_stack[0]->operator[](function_name);
-      if(declaration->attributes[ATTR_function]) {
+      if(declaration->attributes->operator[](ATTR_function)) {
       // if function already defined
          errprintf("%d:%d:%d: multiple definition of function %s\n",
             node->filenr,node->linenr,node->offset,
@@ -268,9 +292,9 @@ void parse_function(astree* node) {
 
    // handle function body if necessary
    if(node->symbol == TOK_PROTOTYPE) {
-      s->attributes.set(ATTR_prototype);
+      s->attributes->set(ATTR_prototype);
    } else {
-      s->attributes.set(ATTR_function);
+      s->attributes->set(ATTR_function);
       if(block == nullptr) {
          block = new symbol_table();
          current_block = next_block;
@@ -286,15 +310,15 @@ void parse_function(astree* node) {
 
 void parse_vardecl(astree* node) {
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_variable);
-   s->attributes.set(ATTR_lval);
+   s->attributes->set(ATTR_variable);
+   s->attributes->set(ATTR_lval);
    int var_type;
    const string* var_name;
 
    if(node->children[0]->symbol == TOK_ARRAY) {
       var_type = node->children[0]->children[0]->symbol;
       var_name = node->children[0]->children[1]->lexinfo;
-      s->attributes.set(ATTR_array);
+      s->attributes->set(ATTR_array);
 
       if(node->children[0]->children[0]->symbol == TOK_TYPEID) {
          s->struct_name = node->children[0]->children[0]->lexinfo;
@@ -310,7 +334,7 @@ void parse_vardecl(astree* node) {
       }
    }
 
-   s->attributes.set(yy_to_enum(var_type));
+   s->attributes->set(yy_to_enum(var_type));
 
    bool emplace = true;
 
@@ -348,7 +372,7 @@ void parse_vardecl(astree* node) {
 
 void parse_while(astree* node) {
    symbol* condition = parse_expression(node->children[0]);
-   if(!condition->attributes[ATTR_bool]) {
+   if(!condition->attributes->operator[](ATTR_bool)) {
       errprintf("%d:%d:%d: while condition must be of type bool\n",
          condition->filenr,condition->linenr,condition->offset);
       error_count++;
@@ -359,7 +383,7 @@ void parse_while(astree* node) {
 
 void parse_if(astree* node) {
    symbol* condition = parse_expression(node->children[0]);
-   if(!condition->attributes[ATTR_bool]) {
+   if(!condition->attributes->operator[](ATTR_bool)) {
       errprintf("%d:%d:%d: if condition must be of type bool\n",
          condition->filenr,condition->linenr,condition->offset);
       error_count++;
@@ -382,7 +406,9 @@ void parse_return(astree* node) {
    symbol* value = nullptr;
    if(!returnvoid) value = parse_expression(node->children[0]);
 
-   if(current_function == nullptr || function->attributes[ATTR_void]) {
+   if(current_function == nullptr
+      || function->attributes->operator[](ATTR_void)) {
+
       if(!returnvoid) {
          errprintf("%d:%d:%d: value may not be returned from void "
             " function\n",node->filenr,node->linenr,node->offset);
@@ -409,12 +435,13 @@ symbol* parse_assignment(astree* node) {
    symbol* right = parse_expression(node->children[1]);
 
    symbol* s = new symbol(node,current_block);
-   s->attributes = left->attributes;
-   s->attributes.reset(ATTR_lval);
-   if(right->attributes[ATTR_vreg]) s->attributes.set(ATTR_vreg);
-   else s->attributes.set(ATTR_vaddr);
+   *(s->attributes) = *(left->attributes);
+   s->attributes->reset(ATTR_lval);
+   if(right->attributes->operator[](ATTR_vreg)) {
+      s->attributes->set(ATTR_vreg);
+   } else s->attributes->set(ATTR_vaddr);
 
-   if(!left->attributes[ATTR_lval]) {
+   if(!left->attributes->operator[](ATTR_lval)) {
       errprintf("%d:%d:%d: attempt to assign value to non-variable "
          "expression\n",node->filenr,node->linenr,node->offset);
       error_count++;
@@ -452,8 +479,8 @@ symbol* parse_eq(astree* node) {
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_bool);
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(ATTR_bool);
+   s->attributes->set(ATTR_vreg);
    delete left;
    delete right;
    return s;
@@ -464,18 +491,21 @@ symbol* parse_cmp(astree* node) {
    symbol* right = parse_expression(node->children[1]);
    const string* op = node->lexinfo;
 
-   if(!((left->attributes[ATTR_bool] && right->attributes[ATTR_bool])
-      || (left->attributes[ATTR_char] && right->attributes[ATTR_char])
-      || (left->attributes[ATTR_int] && right->attributes[ATTR_int])))
+   if(!((left->attributes->operator[](ATTR_bool)
+      && right->attributes->operator[](ATTR_bool))
+      || (left->attributes->operator[](ATTR_char)
+      && right->attributes->operator[](ATTR_char))
+      || (left->attributes->operator[](ATTR_int)
+      && right->attributes->operator[](ATTR_int))))
    {
-      errprintf("%d:%d:%d: %s operator may only be used with type "
-         "int\n",node->filenr,node->linenr,node->offset,op->c_str());
+      errprintf("%d:%d:%d: %s operator may only be used with primitive "
+         "types\n",node->filenr,node->linenr,node->offset,op->c_str());
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_bool);
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(ATTR_bool);
+   s->attributes->set(ATTR_vreg);
    delete left;
    delete right;
    return s;
@@ -485,15 +515,16 @@ symbol* parse_math(astree* node) {
    symbol* left = parse_expression(node->children[0]);
    symbol* right = parse_expression(node->children[1]);
 
-   if(!left->attributes[ATTR_int] || !right->attributes[ATTR_int]) {
+   if(!left->attributes->operator[](ATTR_int)
+      || !right->attributes->operator[](ATTR_int)) {
       errprintf("%d:%d:%d: arithmetic operands must be integers\n",
          node->filenr,node->linenr,node->offset);
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_int);
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(ATTR_int);
+   s->attributes->set(ATTR_vreg);
    delete left;
    delete right;
    return s;
@@ -502,15 +533,15 @@ symbol* parse_math(astree* node) {
 symbol* parse_sign(astree* node) {
    symbol* op = parse_expression(node->children[0]);
 
-   if(!op->attributes[ATTR_int]) {
+   if(!op->attributes->operator[](ATTR_int)) {
       errprintf("%d:%d:%d: sign applied to non-integer expression\n",
          node->filenr,node->linenr,node->offset);
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_int);
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(ATTR_int);
+   s->attributes->set(ATTR_vreg);
    delete op;
    return s;
 }
@@ -518,15 +549,15 @@ symbol* parse_sign(astree* node) {
 symbol* parse_bang(astree* node) {
    symbol* op = parse_expression(node->children[0]);
 
-   if(!op->attributes[ATTR_bool]) {
+   if(!op->attributes->operator[](ATTR_bool)) {
       errprintf("%d:%d:%d: logical negation of non-boolean "
          "expression\n",node->filenr,node->linenr,node->offset);
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_bool);
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(ATTR_bool);
+   s->attributes->set(ATTR_vreg);
    delete op;
    return s;
 }
@@ -534,15 +565,15 @@ symbol* parse_bang(astree* node) {
 symbol* parse_ord(astree* node) {
    symbol* op = parse_expression(node->children[0]);
 
-   if(!op->attributes[ATTR_char]) {
+   if(!op->attributes->operator[](ATTR_char)) {
       errprintf("%d:%d:%d: ord operator applied to non-character "
          "expression\n",node->filenr,node->linenr,node->offset);
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_int);
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(ATTR_int);
+   s->attributes->set(ATTR_vreg);
    delete op;
    return s;
 }
@@ -550,15 +581,15 @@ symbol* parse_ord(astree* node) {
 symbol* parse_chr(astree* node) {
    symbol* op = parse_expression(node->children[0]);
 
-   if(!op->attributes[ATTR_int]) {
+   if(!op->attributes->operator[](ATTR_int)) {
       errprintf("%d:%d:%d: chr operator applied to non-integer "
          "expression\n",node->filenr,node->linenr,node->offset);
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_char);
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(ATTR_char);
+   s->attributes->set(ATTR_vreg);
    delete op;
    return s;
 }
@@ -580,9 +611,9 @@ symbol* parse_new_struct(astree* node) {
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_typeid);
-   s->attributes.set(ATTR_vreg);
-   s->attributes.set(ATTR_struct);
+   s->attributes->set(ATTR_typeid);
+   s->attributes->set(ATTR_vreg);
+   s->attributes->set(ATTR_struct);
    node->struct_name = s->struct_name = struct_name;
    return s;
 }
@@ -590,15 +621,15 @@ symbol* parse_new_struct(astree* node) {
 symbol* parse_new_string(astree* node) {
    symbol* length = parse_expression(node->children[0]);
 
-   if(!length->attributes[ATTR_int]) {
+   if(!length->attributes->operator[](ATTR_int)) {
       errprintf("%d:%d:%d: string length must be of type int\n",
          node->filenr,node->linenr,node->offset);
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_string);
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(ATTR_string);
+   s->attributes->set(ATTR_vreg);
    delete length;
    return s;
 }
@@ -617,16 +648,16 @@ symbol* parse_new_array(astree* node) {
 
    symbol* length = parse_expression(node->children[1]);
 
-   if(!length->attributes[ATTR_int]) {
+   if(!length->attributes->operator[](ATTR_int)) {
       errprintf("%d:%d:%d: array length must be of type int\n",
          node->filenr,node->linenr,node->offset);
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(yy_to_enum(type));
-   s->attributes.set(ATTR_array);
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(yy_to_enum(type));
+   s->attributes->set(ATTR_array);
+   s->attributes->set(ATTR_vreg);
    node->struct_name = s->struct_name = struct_name;
    delete length;
    return s;
@@ -670,17 +701,29 @@ symbol* parse_call(astree* node) {
 
    symbol* s = new symbol(node,current_block);
    if(function != nullptr) {
-      s->attributes[ATTR_void]   = function->attributes[ATTR_void];
-      s->attributes[ATTR_bool]   = function->attributes[ATTR_bool];
-      s->attributes[ATTR_char]   = function->attributes[ATTR_char];
-      s->attributes[ATTR_int]    = function->attributes[ATTR_int];
-      s->attributes[ATTR_string] = function->attributes[ATTR_string];
-      s->attributes[ATTR_struct] = function->attributes[ATTR_struct];
-      s->attributes[ATTR_array]  = function->attributes[ATTR_array];
-      s->attributes[ATTR_typeid] = function->attributes[ATTR_typeid];
+      s->attributes->operator[](ATTR_void)
+         = function->attributes->operator[](ATTR_void);
+      s->attributes->operator[](ATTR_bool)
+         = function->attributes->operator[](ATTR_bool);
+      s->attributes->operator[](ATTR_char)
+         = function->attributes->operator[](ATTR_char);
+      s->attributes->operator[](ATTR_int)
+         = function->attributes->operator[](ATTR_int);
+      s->attributes->operator[](ATTR_string)
+         = function->attributes->operator[](ATTR_string);
+      s->attributes->operator[](ATTR_struct)
+         = function->attributes->operator[](ATTR_struct);
+      s->attributes->operator[](ATTR_array) 
+         = function->attributes->operator[](ATTR_array);
+      s->attributes->operator[](ATTR_typeid)
+         = function->attributes->operator[](ATTR_typeid);
+
       node->struct_name = s->struct_name = function->struct_name;
+      node->dfilenr = function->filenr;
+      node->dlinenr = function->linenr;
+      node->doffset = function->offset;
    }
-   s->attributes.set(ATTR_vreg);
+   s->attributes->set(ATTR_vreg);
    return s;
 }
 
@@ -699,21 +742,28 @@ symbol* parse_variable(astree* node) {
    }
 
    symbol* s = new symbol(node,current_block);
-   s->attributes.set(ATTR_variable);
-   s->attributes.set(ATTR_lval);
+   s->attributes->set(ATTR_variable);
+   s->attributes->set(ATTR_lval);
 
    if(variable == nullptr) {
       errprintf("%d:%d:%d: variable %s is not declared in current "
          "scope\n",node->filenr,node->linenr,node->offset,identifier);
       error_count++;
    } else {
-      s->attributes[ATTR_bool]   = variable->attributes[ATTR_bool];
-      s->attributes[ATTR_char]   = variable->attributes[ATTR_char];
-      s->attributes[ATTR_int]    = variable->attributes[ATTR_int];
-      s->attributes[ATTR_string] = variable->attributes[ATTR_string];
-      s->attributes[ATTR_struct] = variable->attributes[ATTR_struct];
-      s->attributes[ATTR_typeid] = variable->attributes[ATTR_typeid];
-      s->attributes[ATTR_array]  = variable->attributes[ATTR_array];
+      s->attributes->operator[](ATTR_bool)
+         = variable->attributes->operator[](ATTR_bool);
+      s->attributes->operator[](ATTR_char)
+         = variable->attributes->operator[](ATTR_char);
+      s->attributes->operator[](ATTR_int)
+         = variable->attributes->operator[](ATTR_int);
+      s->attributes->operator[](ATTR_string)
+         = variable->attributes->operator[](ATTR_string);
+      s->attributes->operator[](ATTR_struct)
+         = variable->attributes->operator[](ATTR_struct);
+      s->attributes->operator[](ATTR_typeid)
+         = variable->attributes->operator[](ATTR_typeid);
+      s->attributes->operator[](ATTR_array)
+         = variable->attributes->operator[](ATTR_array);
 
       node->struct_name = s->struct_name = variable->struct_name;
       node->dfilenr = variable->filenr;
@@ -727,8 +777,8 @@ symbol* parse_variable(astree* node) {
 symbol* parse_index(astree* node) {
    symbol* array = parse_expression(node->children[0]);
 
-   if(!(array->attributes[ATTR_array]
-      || array->attributes[ATTR_string])) {
+   if(!(array->attributes->operator[](ATTR_array)
+      || array->attributes->operator[](ATTR_string))) {
 
       errprintf("%d:%d:%d: [] operator may only be used with array or "
          "string types\n",node->filenr,node->linenr,node->offset);
@@ -737,26 +787,32 @@ symbol* parse_index(astree* node) {
 
    symbol* index = parse_expression(node->children[1]);
 
-   if(!index->attributes[ATTR_int]) {
+   if(!index->attributes->operator[](ATTR_int)) {
       errprintf("%d:%d:%d: indexes must be of type int\n",node->filenr,
          node->linenr,node->offset);
       error_count++;
    }
 
    symbol* s = new symbol(node,current_block);
-   if(array->attributes[ATTR_array]) {
-      s->attributes[ATTR_bool]   = array->attributes[ATTR_bool];
-      s->attributes[ATTR_char]   = array->attributes[ATTR_char];
-      s->attributes[ATTR_int]    = array->attributes[ATTR_int];
-      s->attributes[ATTR_string] = array->attributes[ATTR_string];
-      s->attributes[ATTR_struct] = array->attributes[ATTR_struct];
-      s->attributes[ATTR_typeid] = array->attributes[ATTR_typeid];
+   if(array->attributes->operator[](ATTR_array)) {
+      s->attributes->operator[](ATTR_bool)
+         = array->attributes->operator[](ATTR_bool);
+      s->attributes->operator[](ATTR_char)
+         = array->attributes->operator[](ATTR_char);
+      s->attributes->operator[](ATTR_int)
+         = array->attributes->operator[](ATTR_int);
+      s->attributes->operator[](ATTR_string)
+         = array->attributes->operator[](ATTR_string);
+      s->attributes->operator[](ATTR_struct)
+         = array->attributes->operator[](ATTR_struct);
+      s->attributes->operator[](ATTR_typeid)
+         = array->attributes->operator[](ATTR_typeid);
       node->struct_name = s->struct_name = array->struct_name;
-   } else if(array->attributes[ATTR_string]) {
-      s->attributes.set(ATTR_char);
+   } else if(array->attributes->operator[](ATTR_string)) {
+      s->attributes->set(ATTR_char);
    }
-   s->attributes.set(ATTR_vaddr);
-   s->attributes.set(ATTR_lval);
+   s->attributes->set(ATTR_vaddr);
+   s->attributes->set(ATTR_lval);
    delete array;
    delete index;
    return s;
@@ -767,20 +823,27 @@ symbol* parse_field(astree* node) {
    const string* field_name = node->children[1]->lexinfo;
    symbol* s = new symbol(node,current_block);
 
-   if(op->attributes[ATTR_typeid]) {
+   if(op->attributes->operator[](ATTR_typeid)) {
       if(struct_table.count(op->struct_name)) {
       // technically it's an error if this struct type doesn't exist,
       // but that will be caught during expression parsing
          symbol* structure = struct_table[op->struct_name];
          if(structure->fields->count(field_name)) {
             symbol* field = structure->fields->operator[](field_name);
-            s->attributes[ATTR_bool]   = field->attributes[ATTR_bool];
-            s->attributes[ATTR_char]   = field->attributes[ATTR_char];
-            s->attributes[ATTR_int]    = field->attributes[ATTR_int];
-            s->attributes[ATTR_string] = field->attributes[ATTR_string];
-            s->attributes[ATTR_struct] = field->attributes[ATTR_struct];
-            s->attributes[ATTR_array]  = field->attributes[ATTR_array];
-            s->attributes[ATTR_typeid] = field->attributes[ATTR_typeid];
+            s->attributes->operator[](ATTR_bool)
+               = field->attributes->operator[](ATTR_bool);
+            s->attributes->operator[](ATTR_char)
+               = field->attributes->operator[](ATTR_char);
+            s->attributes->operator[](ATTR_int)
+               = field->attributes->operator[](ATTR_int);
+            s->attributes->operator[](ATTR_string)
+               = field->attributes->operator[](ATTR_string);
+            s->attributes->operator[](ATTR_struct)
+               = field->attributes->operator[](ATTR_struct);
+            s->attributes->operator[](ATTR_array)
+               = field->attributes->operator[](ATTR_array);
+            s->attributes->operator[](ATTR_typeid)
+               = field->attributes->operator[](ATTR_typeid);
             node->struct_name = s->struct_name = field->struct_name;
          } else {
             errprintf("%d:%d:%d: struct type %s does not have field "
@@ -795,8 +858,8 @@ symbol* parse_field(astree* node) {
       error_count++;
    }
 
-   s->attributes.set(ATTR_vaddr);
-   s->attributes.set(ATTR_lval);
+   s->attributes->set(ATTR_vaddr);
+   s->attributes->set(ATTR_lval);
    delete op;
    return s;
 }
@@ -806,23 +869,23 @@ symbol* parse_constant(astree* node) {
 
    switch(node->symbol) {
       case TOK_INTCON:
-         s->attributes.set(ATTR_int);
+         s->attributes->set(ATTR_int);
          break;
       case TOK_CHARCON:
-         s->attributes.set(ATTR_char);
+         s->attributes->set(ATTR_char);
          break;
       case TOK_STRINGCON:
-         s->attributes.set(ATTR_string);
+         s->attributes->set(ATTR_string);
          break;
       case TOK_FALSE:
       case TOK_TRUE:
-         s->attributes.set(ATTR_bool);
+         s->attributes->set(ATTR_bool);
          break;
       case TOK_NULL:
-         s->attributes.set(ATTR_null);
+         s->attributes->set(ATTR_null);
    }
 
-   s->attributes.set(ATTR_const);
+   s->attributes->set(ATTR_const);
    return s;
 }
 

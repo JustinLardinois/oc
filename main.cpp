@@ -118,12 +118,12 @@ int main (int argc, char** argv) {
    dump_stringset(ss_dump);
    ss_dump.close();
 
+   create_symbol_table(yyparse_astree);
+
    FILE* ast_file = fopen((string(program_name) + ".ast").c_str(),
       "w");
    dump_astree(ast_file,yyparse_astree);
    fclose(ast_file);
-
-   create_symbol_table(yyparse_astree);
 
    fclose(fopen((string(program_name) + ".sym").c_str(),"w"));
    fclose(fopen((string(program_name) + ".oil").c_str(),"w"));

@@ -63,13 +63,16 @@ astree* adoptf(astree* identdecl , astree* params , astree* block) {
 static void dump_node (FILE* outfile, astree* node) {
    const char *tname = get_yytname (node->symbol);
    if (strstr (tname, "TOK_") == tname) tname += 4;
-   fprintf(outfile,"%s \"%s\" (%zu.%zu.%zu) {%zu}%s",tname,
-      node->lexinfo->c_str(),node->filenr,node->linenr,node->offset,
-      node->blocknr,
-      stringify_attributes(node->attributes,node->struct_name).c_str());
-   if(node->symbol == TOK_IDENT) {
-      fprintf(outfile," (%zu.%zu.%zu)",node->dfilenr,node->dlinenr,
-         node->doffset);
+   fprintf(outfile,"%s \"%s\" (%zu.%zu.%zu)",tname,
+      node->lexinfo->c_str(),node->filenr,node->linenr,node->offset);
+   string attributes = stringify_attributes(node->attributes,
+      node->struct_name);
+   if (attributes != "") {
+      fprintf(outfile," {%zu}%s",node->blocknr,attributes.c_str());
+      if(node->symbol == TOK_IDENT) {
+         fprintf(outfile," (%zu.%zu.%zu)",node->dfilenr,node->dlinenr,
+            node->doffset);
+      }
    }
 }
 
@@ -136,7 +139,8 @@ string stringify_enum(int attr, const string* struct_name) {
       case ATTR_string:
          return "string";
       case ATTR_struct:
-         return "struct \"" + *struct_name + "\"";
+         if(struct_name == nullptr) return "struct NULL";
+         else return "struct \"" + *struct_name + "\"";
       case ATTR_array:
          return "array";
       case ATTR_function:

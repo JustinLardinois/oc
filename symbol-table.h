@@ -15,17 +15,13 @@ using symbol_table = std::unordered_map<const std::string*,symbol*>;
 using symbol_entry = symbol_table::value_type;
 
 struct symbol {
-   attr_bitset& attributes;
+   attr_bitset* attributes;
    symbol_table* fields;
    size_t filenr, linenr, offset;
-   size_t& blocknr;
+   size_t blocknr;
    std::vector<symbol*>* parameters;
    const string* struct_name;
-   symbol(astree* node , size_t blocknr) :
-      attributes(node->attributes), fields(nullptr) ,
-      filenr(node->filenr) , linenr(node->linenr) ,
-      offset(node->offset) , blocknr(blocknr) , parameters(nullptr) ,
-      struct_name(nullptr) {}
+   symbol(astree* node , size_t blocknr);
    ~symbol();
 };
 
