@@ -125,7 +125,10 @@ int main (int argc, char** argv) {
    dump_astree(ast_file,yyparse_astree);
    fclose(ast_file);
 
-   fclose(fopen((string(program_name) + ".sym").c_str(),"w"));
+   FILE* sym_file = fopen((string(program_name) + ".sym").c_str(),"w");
+   dump_symbol_table(sym_file);
+   fclose(sym_file);
+
    fclose(fopen((string(program_name) + ".oil").c_str(),"w"));
 
    return get_exitstatus();

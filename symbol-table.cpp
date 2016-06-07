@@ -6,12 +6,17 @@
 #include "symbol-table.h"
 
 std::vector<symbol_table*> symbol_stack;
+
+// track all blocks for .sym file generation
+std::vector<std::pair<symbol_table*,int>> symbol_track;
+
 symbol_table struct_table;
 
 symbol::symbol(astree* node , size_t blocknr) :
    attributes(&(node->attributes)), fields(nullptr) ,
    filenr(node->filenr) , linenr(node->linenr) , offset(node->offset) ,
-   parameters(nullptr) , struct_name(nullptr) {
+   parameter_names(nullptr), parameters(nullptr) ,
+   struct_name(nullptr) {
 
    node->blocknr = blocknr;
 }
@@ -19,6 +24,7 @@ symbol::symbol(astree* node , size_t blocknr) :
 
 symbol::~symbol() {
    delete this->fields;
+   delete this->parameter_names;
    delete this->parameters;
 }
 
@@ -223,6 +229,7 @@ void parse_function(astree* node) {
    // process parameter list
    vector<astree*>& params = node->children[1]->children;
    if(params.size()) {
+      s->parameter_names = new vector<const string*>();
       s->parameters = new vector<symbol*>();
       current_block = next_block;
       next_block++;
@@ -259,6 +266,7 @@ void parse_function(astree* node) {
          }
 
          p->attributes->set(yy_to_enum(param_type));
+         s->parameter_names->push_back(param_name);
          s->parameters->push_back(p);
          block->emplace(param_name,p);
       }
@@ -946,6 +954,8 @@ void create_symbol_table(astree* node) {
       case TOK_ROOT:
          // initialize symbol stack
          symbol_stack.push_back(new symbol_table());
+         symbol_track.push_back(std::make_pair(symbol_stack.back(),
+            symbol_stack.size() - 1));
          for(auto child: node->children) create_symbol_table(child);
          symbol_stack.pop_back();
          return;
@@ -956,6 +966,8 @@ void create_symbol_table(astree* node) {
          return parse_function(node);
       case TOK_BLOCK:
          symbol_stack.push_back(new symbol_table());
+         symbol_track.push_back(std::make_pair(symbol_stack.back(),
+            symbol_stack.size() - 1));
          current_block = next_block;
          next_block++;
          parse_block(node);
@@ -974,5 +986,51 @@ void create_symbol_table(astree* node) {
       default:
          parse_expression(node);
          return;
+   }
+}
+
+void dump_symbol(FILE* outfile, const string* ident, symbol* s,
+   int depth) {
+
+   for(int i = depth; i > 0; --i) fprintf(outfile,"   ");
+
+   fprintf(outfile,"%s (%zu.%zu.%zu) {%zu} %s\n",ident->c_str(),
+      s->filenr,s->linenr,s->offset,s->blocknr,
+      stringify_attributes(*(s->attributes),s->struct_name).c_str());
+
+   if(s->fields != nullptr) {
+      for(auto pair: *(s->fields)) {
+         const string* ident = pair.first;
+         symbol* s = pair.second;
+         dump_symbol(outfile,ident,s,depth+1);
+      }
+   }
+
+   if(s->parameter_names != nullptr && s->parameters != nullptr) {
+      for(size_t i = 0; i < s->parameter_names->size(); ++i) {
+         dump_symbol(outfile,s->parameter_names->operator[](i),
+            s->parameters->operator[](i),depth+1);
+      }
+      fprintf(outfile,"\n");
+   }
+
+   if(depth == 0) fprintf(outfile,"\n");
+}
+
+void dump_symbol_table(FILE* outfile) {
+   for(auto pair: struct_table) {
+      const string* ident = pair.first;
+      symbol* s = pair.second;
+      dump_symbol(outfile,ident,s,0);
+   }
+
+   for(auto pair: symbol_track) {
+      symbol_table* t = pair.first;
+      int depth = pair.second;
+      for(auto pair: *t) {
+         const string* ident = pair.first;
+         symbol* s = pair.second;
+         dump_symbol(outfile,ident,s,depth);
+      }
    }
 }

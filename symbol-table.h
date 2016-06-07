@@ -19,6 +19,7 @@ struct symbol {
    symbol_table* fields;
    size_t filenr, linenr, offset;
    size_t blocknr;
+   std::vector<const string*>* parameter_names;
    std::vector<symbol*>* parameters;
    const string* struct_name;
    symbol(astree* node , size_t blocknr);
@@ -28,5 +29,9 @@ struct symbol {
 extern int error_count;
 
 void create_symbol_table(astree* node);
+
+void dump_symbol_table(FILE* outfile);
+
+void free_symbol_table();
 
 #endif
