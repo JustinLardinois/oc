@@ -23,8 +23,11 @@ symbol::symbol(astree* node , size_t blocknr) :
 
 
 symbol::~symbol() {
+   for(auto pair: *(this->fields)) delete pair.second;
    delete this->fields;
+
    delete this->parameter_names;
+   for(auto param: *(this->parameters)) delete param;
    delete this->parameters;
 }
 
