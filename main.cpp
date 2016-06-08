@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <string>
+#include <vector>
 using namespace std;
 
 #include <errno.h>
@@ -24,7 +25,7 @@ const size_t LINESIZE = 1024;
 
 struct {
    string debug_flags = "";
-   string cpp_arg = "";
+   vector<const char*> cpp_args;
 } options;
 
 // Chomp the last character from a buffer if it is delim.
@@ -64,7 +65,7 @@ char* parse_args(int argc, char** argv) {
             if(optarg) options.debug_flags = optarg;
             continue;
          case 'D':
-            options.cpp_arg = optarg;
+            options.cpp_args.push_back(optarg);
             continue;
          case ':':
             eprintf("missing argument for option %c\n",optopt);
@@ -93,9 +94,10 @@ int main (int argc, char** argv) {
    *dot = '\0'; // chop off filename extension
    const string str_file = string(program_name) + ".str";
 
-   string command;
-   if(options.cpp_arg == "") command = CPP + " " + input_name;
-   else command = CPP + " -D " + options.cpp_arg + " " + input_name;
+   string command = CPP;
+   string flag = " -D";
+   for(auto arg: options.cpp_args) command += flag + arg;
+   command += " " + input_name;
 
    yyin = popen (command.c_str(), "r");
    if (yyin == NULL) {
