@@ -1,6 +1,6 @@
 %{
 // Justin Lardinois jlardino@ucsc.edu
-// parser.y - dummy parser for scanner project
+// parser.y - parser oc language
 
 #include <cassert>
 
