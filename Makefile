@@ -2,7 +2,8 @@
 # Makefile for oc
 
 ASG          = asg5
-CPPHEADERS   = astree.h auxlib.h lyutils.h stringset.h symbol-table.h
+CPPHEADERS   = astree.h auxlib.h lyutils.h oil-generator.h \
+               stringset.h symbol-table.h
 CPPSOURCES   = ${CPPHEADERS:.h=.cpp} main.cpp 
 DELIVERABLES = ${CPPHEADERS} ${CPPSOURCES} ${LSOURCE} ${YSOURCE} \
                Makefile README
@@ -31,7 +32,10 @@ auxlib.o: auxlib.cpp auxlib.h
 lyutils.o: lyutils.cpp lyutils.h astree.h auxlib.h ${YHGEN}
 	${GPP} -c $<
 
-main.o: main.cpp auxlib.h lyutils.h stringset.h
+oil-generator.o: oil-generator.cpp oil-generator.h astree.h
+	${GPP} -c $<
+
+main.o: main.cpp auxlib.h lyutils.h oil-generator.h stringset.h
 	${GPP} -c $<
 
 stringset.o: stringset.cpp stringset.h

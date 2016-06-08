@@ -17,6 +17,7 @@ using namespace std;
 
 #include "auxlib.h"
 #include "lyutils.h"
+#include "oil-generator.h"
 #include "stringset.h"
 #include "symbol-table.h"
 
@@ -133,7 +134,12 @@ int main (int argc, char** argv) {
 
    free_symbol_table();
 
-   fclose(fopen((string(program_name) + ".oil").c_str(),"w"));
+   if(error_count == 0) {
+      FILE* oil_file = fopen((string(program_name) + ".oil").c_str(),
+         "w");
+      generate_oil(yyparse_astree,oil_file);
+      fclose(oil_file);
+   }
 
    return get_exitstatus();
 }
