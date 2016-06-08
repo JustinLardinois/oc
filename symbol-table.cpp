@@ -23,12 +23,16 @@ symbol::symbol(astree* node , size_t blocknr) :
 
 
 symbol::~symbol() {
-   for(auto pair: *(this->fields)) delete pair.second;
-   delete this->fields;
+   if(this->fields != nullptr) {
+      for(auto pair: *(this->fields)) delete pair.second;
+      delete this->fields;
+   }
 
    delete this->parameter_names;
+   if(this->parameters != nullptr) {
    for(auto param: *(this->parameters)) delete param;
    delete this->parameters;
+   }
 }
 
 // to be referenced during block traversal
@@ -1036,4 +1040,16 @@ void dump_symbol_table(FILE* outfile) {
          dump_symbol(outfile,ident,s,depth);
       }
    }
+}
+
+void free_symbol_table() {
+   for(auto pair: struct_table) delete pair.second;
+   struct_table.clear();
+
+   for(auto pair: symbol_track) {
+      symbol_table* t = pair.first;
+      for(auto pair: *t) delete pair.second;
+      delete t;
+   }
+   symbol_track.clear();
 }

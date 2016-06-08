@@ -129,6 +129,8 @@ int main (int argc, char** argv) {
    dump_symbol_table(sym_file);
    fclose(sym_file);
 
+   free_symbol_table();
+
    fclose(fopen((string(program_name) + ".oil").c_str(),"w"));
 
    return get_exitstatus();
